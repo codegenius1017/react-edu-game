@@ -1,11 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
 import { MainScene } from './Scenes/MainScene';
+import { GameProvider } from './contexts/index';
 
 function App() {
   return (
     <div className="App">
-     <MainScene/>
+      <GameProvider>
+        <MainScene />
+      </GameProvider>
     </div>
   );
 }
