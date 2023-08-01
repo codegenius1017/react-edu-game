@@ -3,77 +3,63 @@ import Canvas from '../Components/Canvas';
 import { GameContext } from '../contexts/GameContext';
 import { createAteroid } from '../gameAssets/Objects/Asteroid';
 
-export const MainScene = ({}) => {
+export const MainScene = ({ }) => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const gameScreen = useRef();
   const gameScreenWidth = gameScreen?.current?.clientWidth;
   const gameScreenHeight = gameScreen?.current?.clientHeight;
-  const [shouldClearCanvas, setShouldClearCanvas] = useState(true);
   const [asteroids, setAsteroids] = useState([]);
 
+  let msPrev = window.performance.now()
+
   useEffect(() => {
-    console.log(gameScreen.current);
     if (!gameScreen.current) return;
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
-    if (shouldClearCanvas && canvasCtx) {
-      console.log(
-        canvasCtx,
-        gameScreen?.current?.clientWidth,
-        gameScreen?.current?.clientHeight,
-      );
-      canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
-      canvasCtx.fillStyle = 'black';
-      canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
-      setShouldClearCanvas(false); // Evita limpar o canvas novamente após a primeira renderização
-    }
-    // if (canvasCtx) {
-    //   console.log(canvasCtx, gameScreen?.current?.clientWidth,  gameScreen?.current?.clientHeight);
+    // requestAnimationFrame(animate)
 
-    //   canvasCtx.fillStyle = 'black';
-    //   canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
-    // }
+    // const msNow = window.performance.now()
+    // const elapsed = msNow - msPrev;
 
-    // return () => canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
-  }, [gameScreen, gameScreenWidth, gameScreenHeight]);
+    // if (elapsed < fpsInterval) return
 
-  useEffect(() => {
-    // Defina shouldClearCanvas como true sempre que o componente for montado ou gameState for alterado.
-    // Isso garante que o canvas será limpo e redesenhado.
-    setShouldClearCanvas(true);
-  }, [gameState]);
+    // msPrev = msNow - (elapsed % fpsInterval) // 3.34
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const asteroid = createAteroid(gameScreenWidth);
-      const arrAsteroids = [...asteroids, asteroid];
-
-      asteroid.fall();
-
-      setAsteroids(arrAsteroids);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [asteroids]);
-
-  useEffect(() => {
-    const canvasCtx = gameScreen?.current?.getContext('2d');
-
-    canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
     canvasCtx.fillStyle = 'black';
     canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
 
-    asteroids.forEach((asteroid) => {
-      canvasCtx.fillStyle = asteroid.image;
-      canvasCtx.fillRect(
-        asteroid.position.x,
-        asteroid.position.y,
-        asteroid.width,
-        asteroid.height,
-      );
-    });
+    return () => canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
+  }, [gameScreen, gameScreenWidth, gameScreenHeight]);
 
-  }, [asteroids]);
+
+  useEffect(() => {
+    const canvasCtx = gameScreen?.current?.getContext('2d');
+    const _asteroids = [...asteroids]
+
+    const interval = setInterval(() => {
+      const asteroid = createAteroid(gameScreenWidth);
+
+      _asteroids.push(asteroid);
+      if (_asteroids.length > 10) _asteroids.shift();
+
+      canvasCtx.clearRect(0, 0, gameScreen.current.width, gameScreen.current.height);
+      canvasCtx.fillStyle = 'black';
+      canvasCtx.fillRect(0, 0, gameScreen.current.width, gameScreen.current.height);
+
+      _asteroids.forEach((asteroid) => {
+        asteroid.fall(() => {
+
+        }, canvasCtx);
+      });
+
+      setAsteroids(_asteroids);
+
+    }, 1000);
+
+    return () => {
+      clearInterval(interval)
+    };
+  }, [asteroids, gameScreenWidth]);
 
   return (
     <div id="main-screen">
