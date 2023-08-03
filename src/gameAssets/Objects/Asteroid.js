@@ -5,30 +5,30 @@ import meteor from '../images/asteroids/meteor-1.png';
 
 const asteroidsTypes = [
   {
-    image: asteroid1,
+    // image: asteroid1,
     // imageSrc: "./images/asteroids/asteroi-1.png",
     imageSrc: "https://art.pixilart.com/5616214e1061d21.png",
     vel: 1,
     damage: 1,
-    size: 50,
+    size: 20,
     health: 2,
   },
   {
-    image: asteroid2,
+    // image: asteroid2,
     imageSrc: "./images/asteroids/asteroid-2.png",
     // imageSrc: "https://art.pixilart.com/5616214e1061d21.png",
     vel: 0.7,
     damage: 2,
-    size: 65,
+    size: 30,
     health: 4,
   },
   {
-    image: meteor,
+    // image: meteor,
     imageSrc: "./images/asteroids/meteor-1.png",
     // imageSrc: "https://art.pixilart.com/5616214e1061d21.png",
     vel: 3,
     damage: 0.5,
-    size: 35,
+    size: 10,
     health: 1,
   },
 ];

@@ -10,31 +10,29 @@ export const MainScene = ({ }) => {
   const gameScreenHeight = gameScreen?.current?.clientHeight;
   const [asteroids, setAsteroids] = useState([]);
 
-  let msPrev = window.performance.now()
+  // let msPrev = window.performance.now()
 
-  useEffect(() => {
-    if (!gameScreen.current) return;
-    const canvasCtx = gameScreen?.current?.getContext('2d');
 
-    // requestAnimationFrame(animate)
 
-    // const msNow = window.performance.now()
-    // const elapsed = msNow - msPrev;
+  // useEffect(() => {
+  //   if (!gameScreen.current) return;
+  //   const canvasCtx = gameScreen?.current?.getContext('2d');
 
-    // if (elapsed < fpsInterval) return
+  //   function animate() {
+  //     requestAnimationFrame(animate);
 
-    // msPrev = msNow - (elapsed % fpsInterval) // 3.34
+  //     canvasCtx.fillStyle = 'black';
+  //     canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
+  //   }
+  //   animate();
 
-    canvasCtx.fillStyle = 'black';
-    canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
-
-    return () => canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
-  }, [gameScreen, gameScreenWidth, gameScreenHeight]);
+  //   return () => canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
+  // }, [gameScreen, gameScreenWidth, gameScreenHeight]);
 
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
-    const _asteroids = [...asteroids]
+    const _asteroids = [...asteroids];
 
     const interval = setInterval(() => {
       const asteroid = createAteroid(gameScreenWidth);
@@ -42,16 +40,19 @@ export const MainScene = ({ }) => {
       _asteroids.push(asteroid);
       if (_asteroids.length > 10) _asteroids.shift();
 
-      canvasCtx.clearRect(0, 0, gameScreen.current.width, gameScreen.current.height);
+      // function animate() {
+      //   requestAnimationFrame(animate);
+
       canvasCtx.fillStyle = 'black';
       canvasCtx.fillRect(0, 0, gameScreen.current.width, gameScreen.current.height);
 
       _asteroids.forEach((asteroid) => {
         asteroid.fall(() => {
-
         }, canvasCtx);
       });
+      // }
 
+      // animate();
       setAsteroids(_asteroids);
 
     }, 1000);

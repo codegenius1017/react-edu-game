@@ -11,7 +11,7 @@ export class Sprite {
     this.position = position;
     this.width = width;
     this.height = height;
-    this.image = new Image();
+    this.image = new Image(width, height);
     this.image.src = imageSrc;
     this.imageSrc = imageSrc;
     this.scale = scale;
@@ -58,6 +58,10 @@ export class Sprite {
   }
 }
 
+export class SpaceShip extends Sprite {
+
+}
+
 export class AsteroidSprite extends Sprite {
   constructor({
     vel,
@@ -87,7 +91,15 @@ export class AsteroidSprite extends Sprite {
   fall(cb, c) {
     this.interval = setInterval(() => {
       this.position.y += this.vel;
-      this.draw(c);
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        c.fillStyle = "black";
+        c.fillRect(0, 0, 1000, 1000);
+        if(this.draw) this.draw(c);
+      }
+
+      animate();
       cb();
     }, 50);
   }
@@ -100,8 +112,8 @@ export class AsteroidSprite extends Sprite {
         this.image,
         this.position.x, //The x coordinate where to start clipping
         this.position.y, //The y coordinate where to start clipping
-        this.width, //The width of the clipped image
-        this.height, //The height of the clipped image
+        this.image.width, //The width of the clipped image
+        this.image.height, //The height of the clipped image
       )
     }
   }
