@@ -86,35 +86,61 @@ export class AsteroidSprite extends Sprite {
 
     this.vel = vel;
     this.damage = damage;
+    this.isAnimating = false;
+    this.image.onload = () => {
+      this.isLoaded = true;
+    };
   }
 
-  fall(cb, c) {
-    this.interval = setInterval(() => {
+  fall({ cbFalling, cbEndFall, canvasCtx, gameScreenWidth, gameScreenHeight }) {
+    if (this.isAnimating) return; // Evita iniciar uma nova animação se já estiver em andamento
+
+    this.isAnimating = true;
+
+    if (this.isLoaded) {
+      // this.clearCanvas(canvasCtx, gameScreenWidth, gameScreenHeight);
+      this.draw(canvasCtx);
+    }
+
+    const animate = () => {
       this.position.y += this.vel;
-      
-      function animate() {
-        requestAnimationFrame(animate);
-        c.fillStyle = "black";
-        c.fillRect(0, 0, 1000, 1000);
-        if(this.draw) this.draw(c);
+
+      if (this.isLoaded) {
+        // this.clearCanvas(canvasCtx, gameScreenWidth, gameScreenHeight);
+        this.draw(canvasCtx);
       }
 
-      animate();
-      cb();
-    }, 50);
+      if (this.position.y < gameScreenHeight) {
+        requestAnimationFrame(animate);
+      } else {
+        this.isAnimating = false;
+        cbEndFall();
+      }
+
+      cbFalling();
+    };
+
+    animate();
+  }
+
+  clearCanvas(c, cWidth, cHeigth) {
+    c.clearRect(
+      this.position.x,
+      (this.position.y - this.vel),
+      this.width,
+      this.height
+    );
+    c.fillStyle = 'black';
+    c.fillRect(0, 0, cWidth, cHeigth);
   }
 
   draw(c) {
-    this.image.src = this.imageSrc;
-
-    this.image.onload = () => {
-      c.drawImage(
-        this.image,
-        this.position.x, //The x coordinate where to start clipping
-        this.position.y, //The y coordinate where to start clipping
-        this.image.width, //The width of the clipped image
-        this.image.height, //The height of the clipped image
-      )
-    }
+    c.drawImage(
+      this.image,
+      this.position.x,
+      this.position.y,
+      this.image.width,
+      this.image.height,
+    );
   }
 }
