@@ -25,7 +25,7 @@ const asteroidsTypes = [
 ];
 
 export const createAteroid = (gameScreenWidth) => {
-  const randomType = Math.floor(asteroidsTypes.length * Math.random()) / 2;
+  const randomType = Math.floor(asteroidsTypes.length * Math.random());
   const aster = { ...asteroidsTypes[randomType] } || {...asteroidsTypes[0]};
 
   const Asteroid = new AsteroidSprite({
@@ -35,6 +35,5 @@ export const createAteroid = (gameScreenWidth) => {
     ...aster,
   });
 
-  console.log(Asteroid);
   return Asteroid;
 };

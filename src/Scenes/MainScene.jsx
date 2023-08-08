@@ -1,9 +1,16 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import Canvas from '../Components/Canvas';
 import { GameContext } from '../contexts/GameContext';
 import { createAteroid } from '../gameAssets/Objects/Asteroid';
 
-export const MainScene = ({ }) => {
+export const MainScene = ({}) => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const gameScreen = useRef(null);
   const [asteroids, setAsteroids] = useState([]);
@@ -11,80 +18,8 @@ export const MainScene = ({ }) => {
   const gameScreenWidth = gameScreen?.current?.clientWidth;
   const gameScreenHeight = gameScreen?.current?.clientHeight;
 
-  // const animateAsteroids = useCallback(() => {
-  //   const canvasCtx = gameScreen?.current?.getContext('2d');
-  //   const _asteroids = asteroids;
-
-  //   requestAnimationFrame(animateAsteroids);
-
-  //   canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
-  //   canvasCtx.fillStyle = 'black';
-  //   canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
-
-  //   _asteroids.forEach((asteroid, i) => {
-  //     asteroid.fall({
-  //       cbFalling: (position) => {
-
-  //       },
-  //       cbEndFall: () => {
-  //         _asteroids.splice(i, 1);
-  //         setAsteroids(_asteroids);
-  //       },
-  //       canvasCtx,
-  //       gameScreenWidth,
-  //       gameScreenHeight
-  //     });
-  //   });
-  // }, [gameScreenWidth, gameScreenHeight, asteroids]);
-
-  useEffect(() => {
-    const _asteroids = [...asteroids];
-    const canvasCtx = gameScreen?.current?.getContext('2d');
-
-    const interval = setInterval(() => {
-      const asteroid = createAteroid(gameScreenWidth);
-
-      _asteroids.push(asteroid);
-      if (_asteroids.length > 10) _asteroids.shift();
-
-      setAsteroids(_asteroids);
-    }, 500);
-
-    // animateAsteroids();
-
-    const animateAsteroids = () => {
-      requestAnimationFrame(animateAsteroids);
-
-      // canvasCtx.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
-      canvasCtx.fillStyle = 'black';
-      canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
-
-      _asteroids.forEach((asteroid, i) => {
-        asteroid.fall({
-          cbFalling: (position) => {
-
-          },
-          cbEndFall: () => {
-            _asteroids.splice(i, 1);
-            setAsteroids(_asteroids);
-          },
-          canvasCtx,
-          gameScreenWidth,
-          gameScreenHeight
-        });
-      });
-
-    };
-
-    requestAnimationFrame(animateAsteroids);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [gameScreen, gameScreenWidth, gameScreenHeight]);
-
-  return (
-    <div id="main-screen">
+  const gameCanvas = useMemo(
+    () => (
       <Canvas
         id="main-screen-canvas"
         canvasRef={gameScreen}
@@ -94,6 +29,52 @@ export const MainScene = ({ }) => {
           height: '90vh',
         }}
       />
-    </div>
+    ),
+    [],
   );
+
+  useEffect(() => {
+    const _asteroids = [...asteroids];
+
+    const interval = setInterval(() => {
+      const asteroid = createAteroid(gameScreenWidth);
+
+      _asteroids.push(asteroid);
+      if (_asteroids.length > 10) _asteroids.shift();
+
+      setAsteroids(_asteroids);
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [gameScreen, gameScreenWidth, gameScreenHeight]);
+
+  useEffect(() => {
+    const canvasCtx = gameScreen?.current?.getContext('2d');
+
+    const animateAsteroids = () => {
+      requestAnimationFrame(animateAsteroids);
+
+      canvasCtx.fillStyle = 'black';
+      canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
+
+      asteroids.forEach((asteroid, i) => {
+        asteroid.fall({
+          cbFalling: (position) => {},
+          cbEndFall: () => {
+            asteroids.splice(i, 1);
+            // setAsteroids(asteroids);
+          },
+          canvasCtx,
+          gameScreenWidth,
+          gameScreenHeight,
+        });
+      });
+    };
+
+    requestAnimationFrame(animateAsteroids);
+  }, [asteroids, gameScreenWidth, gameScreenHeight]);
+
+  return <div id="main-screen">{gameCanvas}</div>;
 };
