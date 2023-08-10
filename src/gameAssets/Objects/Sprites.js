@@ -1,10 +1,5 @@
 export class Sprite {
-  constructor({
-    position,
-    imageSrc,
-    width,
-    height,
-  }) {
+  constructor({ position, imageSrc, width, height }) {
     this.position = position;
     this.width = width;
     this.height = height;
@@ -20,7 +15,7 @@ export class Sprite {
       this.position.y,
       this.image.width,
       this.image.height,
-    )
+    );
   }
 }
 
@@ -43,7 +38,7 @@ export class AsteroidSprite extends Sprite {
       offset,
       width,
       height,
-      imageSrc
+      imageSrc,
     });
 
     this.vel = vel;
@@ -83,14 +78,14 @@ export class AsteroidSprite extends Sprite {
   clearCanvas(c) {
     c.clearRect(
       this.position.x,
-      (this.position.y - this.vel),
+      this.position.y - this.vel,
       this.image.width,
       this.image.height,
     );
     c.fillStyle = 'black';
     c.fillRect(
       this.position.x,
-      (this.position.y - this.vel),
+      this.position.y - this.vel,
       this.image.width,
       this.image.height,
     );
@@ -104,5 +99,47 @@ export class AsteroidSprite extends Sprite {
       this.image.width,
       this.image.height,
     );
+  }
+}
+
+export class SpaceShipSprite extends Sprite {
+  constructor({
+    damage,
+    position,
+    width,
+    height,
+    imageSrc,
+  }) {
+    super({
+      position,
+      width,
+      height,
+      imageSrc,
+    });
+
+    this.damage = damage;
+    this.isAnimating = false;
+    this.image.onload = () => {
+      this.isLoaded = true;
+    };
+  }
+
+  draw(c) {
+    if(this.isLoaded) c.drawImage(
+      this.image,
+      this.position.x,
+      this.position.y,
+      this.image.width,
+      this.image.height,
+    );
+  }
+
+  move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
+    this.position.x += right;
+    this.position.x -= left;
+    this.position.y += bottom;
+    this.position.y -= top;
+
+    this.draw(canvasCtx);
   }
 }

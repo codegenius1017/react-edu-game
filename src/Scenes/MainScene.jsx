@@ -9,14 +9,18 @@ import {
 import Canvas from '../Components/Canvas';
 import { GameContext } from '../contexts/GameContext';
 import { createAteroid } from '../gameAssets/Objects/Asteroid';
+import { createSpaceShip } from '../gameAssets/Objects/SpaceShip';
 
 export const MainScene = ({}) => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const gameScreen = useRef(null);
   const [asteroids, setAsteroids] = useState([]);
-  const [shots, setShots] = useState([]);
   const gameScreenWidth = gameScreen?.current?.clientWidth;
   const gameScreenHeight = gameScreen?.current?.clientHeight;
+  const spaceShip = createSpaceShip({
+    canvasWidth: gameScreenWidth,
+    canvasHeight: gameScreenHeight,
+  });
 
   const gameCanvas = useMemo(
     () => (
@@ -53,7 +57,10 @@ export const MainScene = ({}) => {
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
+    console.log(spaceShip, gameScreenWidth, gameScreenHeight)
+
     const animateAsteroids = () => {
+
       requestAnimationFrame(animateAsteroids);
 
       canvasCtx.fillStyle = 'black';
@@ -61,7 +68,9 @@ export const MainScene = ({}) => {
 
       asteroids.forEach((asteroid, i) => {
         asteroid.fall({
-          cbFalling: (position) => {},
+          cbFalling: (position) => {
+
+          },
           cbEndFall: () => {
             asteroids.splice(i, 1);
             // setAsteroids(asteroids);
@@ -71,6 +80,9 @@ export const MainScene = ({}) => {
           gameScreenHeight,
         });
       });
+
+      spaceShip.draw(canvasCtx);
+
     };
 
     requestAnimationFrame(animateAsteroids);
