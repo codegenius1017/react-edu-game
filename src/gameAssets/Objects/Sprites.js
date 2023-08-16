@@ -3,19 +3,23 @@ export class Sprite {
     this.position = position;
     this.width = width;
     this.height = height;
-    this.image = new Image(width, height);
+    this.image = new Image(1000, 1000);
     this.image.src = imageSrc;
     this.imageSrc = imageSrc;
+    this.image.onload = () => {
+      this.isLoaded = true;
+    };
   }
 
   draw(c) {
-    c.drawImage(
-      this.image,
-      this.position.x,
-      this.position.y,
-      this.image.width,
-      this.image.height,
-    );
+    if (this.isLoaded)
+      c.drawImage(
+        this.image,
+        this.position.x,
+        this.position.y,
+        this.width,
+        this.height,
+      );
   }
 }
 
@@ -58,7 +62,6 @@ export class AsteroidSprite extends Sprite {
       this.position.y += this.vel;
 
       if (this.isLoaded) {
-        // this.clearCanvas(canvasCtx, gameScreenWidth, gameScreenHeight);
         this.draw(canvasCtx);
       }
 
@@ -79,15 +82,15 @@ export class AsteroidSprite extends Sprite {
     c.clearRect(
       this.position.x,
       this.position.y - this.vel,
-      this.image.width,
-      this.image.height,
+      this.width,
+      this.height,
     );
     c.fillStyle = 'black';
     c.fillRect(
       this.position.x,
       this.position.y - this.vel,
-      this.image.width,
-      this.image.height,
+      this.width,
+      this.height,
     );
   }
 
@@ -96,20 +99,14 @@ export class AsteroidSprite extends Sprite {
       this.image,
       this.position.x,
       this.position.y,
-      this.image.width,
-      this.image.height,
+      this.width,
+      this.height,
     );
   }
 }
 
 export class SpaceShipSprite extends Sprite {
-  constructor({
-    damage,
-    position,
-    width,
-    height,
-    imageSrc,
-  }) {
+  constructor({ damage, position, width, height, imageSrc }) {
     super({
       position,
       width,
@@ -119,19 +116,6 @@ export class SpaceShipSprite extends Sprite {
 
     this.damage = damage;
     this.isAnimating = false;
-    this.image.onload = () => {
-      this.isLoaded = true;
-    };
-  }
-
-  draw(c) {
-    if(this.isLoaded) c.drawImage(
-      this.image,
-      this.position.x,
-      this.position.y,
-      this.image.width,
-      this.image.height,
-    );
   }
 
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
@@ -140,6 +124,8 @@ export class SpaceShipSprite extends Sprite {
     this.position.y += bottom;
     this.position.y -= top;
 
-    this.draw(canvasCtx);
+    if (this.isLoaded) {
+      this.draw(canvasCtx);
+    }
   }
 }

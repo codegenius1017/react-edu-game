@@ -15,27 +15,46 @@ export const MainScene = ({}) => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const gameScreen = useRef(null);
   const [asteroids, setAsteroids] = useState([]);
-  const gameScreenWidth = gameScreen?.current?.clientWidth;
-  const gameScreenHeight = gameScreen?.current?.clientHeight;
-  const spaceShip = createSpaceShip({
-    canvasWidth: gameScreenWidth,
-    canvasHeight: gameScreenHeight,
-  });
+  const [level, setLevel] = useState(1);
+  const gameScreenWidth = window.innerWidth;
+  const gameScreenHeight = window.innerHeight;
+  const [spaceShip, setSpaceShip] = useState(
+    createSpaceShip({
+      props: {
+        size: 150,
+      },
+      canvasWidth: gameScreenWidth,
+      canvasHeight: gameScreenHeight,
+    }),
+  );
 
   const gameCanvas = useMemo(
     () => (
       <Canvas
         id="main-screen-canvas"
         canvasRef={gameScreen}
+        height={gameScreenHeight}
+        width={gameScreenWidth}
         canvasStyle={{
+          boxShadow: "inset 0 0 10vw 10vh #000",
+          backgroundColor: "#000000a6",
+          backgroundImage: "url('./images/backgrounds/space1.gif')",
           border: '1px solid black',
-          width: '90vw',
-          height: '90vh',
+          maxWidth: '99vw',
+          maxHeight: '99vh',
         }}
       />
     ),
     [],
   );
+
+  const fillCanvas = (c) => {
+    const img = new Image(gameScreenWidth, gameScreenHeight);
+    img.src = `./images/backgrounds/space${level}.gif`;
+    img.onload = () => {
+      c.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
+    };
+  };
 
   useEffect(() => {
     const _asteroids = [...asteroids];
@@ -57,23 +76,16 @@ export const MainScene = ({}) => {
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
-    console.log(spaceShip, gameScreenWidth, gameScreenHeight)
-
     const animateAsteroids = () => {
-
       requestAnimationFrame(animateAsteroids);
 
-      canvasCtx.fillStyle = 'black';
-      canvasCtx.fillRect(0, 0, gameScreenWidth, gameScreenHeight);
+      fillCanvas(canvasCtx);
 
       asteroids.forEach((asteroid, i) => {
         asteroid.fall({
-          cbFalling: (position) => {
-
-          },
+          cbFalling: (position) => {},
           cbEndFall: () => {
             asteroids.splice(i, 1);
-            // setAsteroids(asteroids);
           },
           canvasCtx,
           gameScreenWidth,
@@ -82,11 +94,30 @@ export const MainScene = ({}) => {
       });
 
       spaceShip.draw(canvasCtx);
-
     };
 
     requestAnimationFrame(animateAsteroids);
-  }, [asteroids, gameScreenWidth, gameScreenHeight]);
+  }, [asteroids, gameScreenWidth, gameScreenHeight, spaceShip]);
 
-  return <div id="main-screen">{gameCanvas}</div>;
+  const handleKeyPress = (e, canvasCtx) => {
+    if (e.key === 'w' || e.key === 'ArrowUp') {
+      spaceShip.move({ top: 5, canvasCtx });
+    }
+    if (e.key === 's' || e.key === 'ArrowDown') {
+      spaceShip.move({ bottom: 5, canvasCtx });
+    }
+    if (e.key === 'd' || e.key === 'ArrowRight') {
+      spaceShip.move({ right: 5, canvasCtx });
+    }
+    if (e.key === 'a' || e.key === 'ArrowLeft') {
+      spaceShip.move({ left: 5, canvasCtx });
+    }
+  };
+
+  useEffect(() => {
+    const canvasCtx = gameScreen?.current?.getContext('2d');
+    window.addEventListener('keydown', (e) => handleKeyPress(e, canvasCtx));
+  }, []);
+
+  return <div id="main-screen" style={{overflow: 'hidden'}}>{gameCanvas}</div>;
 };
