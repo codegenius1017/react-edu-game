@@ -93,13 +93,17 @@ export const MainScene = ({}) => {
         });
       });
 
+      spaceShip.shots.forEach((shot, i) => {
+        if(!shot.active) return spaceShip.shots.splice(i, 1);
+        shot.draw(canvasCtx);
+      });
       spaceShip.draw(canvasCtx);
     };
 
     requestAnimationFrame(animateAsteroids);
   }, [asteroids, gameScreenWidth, gameScreenHeight, spaceShip]);
 
-  const handleKeyPress = (e, canvasCtx) => {
+  const handleKeyPress = useCallback((e, canvasCtx) => {
     if (e.key === 'w' || e.key === 'ArrowUp') {
       spaceShip.move({ top: 5, canvasCtx });
     }
@@ -112,12 +116,16 @@ export const MainScene = ({}) => {
     if (e.key === 'a' || e.key === 'ArrowLeft') {
       spaceShip.move({ left: 5, canvasCtx });
     }
-  };
+    if (e.Code === 'Space' || e.key === " " || e.keyCode === 32) {
+      spaceShip.shoot(canvasCtx);
+      console.log(spaceShip);
+    }
+  }, [spaceShip]);
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
     window.addEventListener('keydown', (e) => handleKeyPress(e, canvasCtx));
-  }, []);
+  }, [gameScreen, handleKeyPress]);
 
   return <div id="main-screen" style={{overflow: 'hidden'}}>{gameCanvas}</div>;
 };
