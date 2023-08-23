@@ -18,6 +18,7 @@ export const MainScene = ({}) => {
   const [level, setLevel] = useState(1);
   const gameScreenWidth = window.innerWidth;
   const gameScreenHeight = window.innerHeight;
+  const shots = useRef([]);
   const [spaceShip, setSpaceShip] = useState(
     createSpaceShip({
       props: {
@@ -44,8 +45,7 @@ export const MainScene = ({}) => {
           maxHeight: '99vh',
         }}
       />
-    ),
-    [],
+    ), [gameScreenHeight, gameScreenWidth],
   );
 
   const fillCanvas = (c) => {
@@ -58,9 +58,23 @@ export const MainScene = ({}) => {
 
   useEffect(() => {
     const _asteroids = [...asteroids];
+    const canvasCtx = gameScreen?.current?.getContext('2d');
 
     const interval = setInterval(() => {
-      const asteroid = createAteroid(gameScreenWidth);
+      const indexAsteroid = _asteroids.length;
+      const asteroid = createAteroid({
+        cbFalling: (position) => {
+
+        },
+        cbEndFall: () => {
+          asteroids.splice(indexAsteroid, 1);
+        },
+        canvasCtx,
+        gameScreenWidth,
+        gameScreenHeight,
+      });
+
+      asteroid.fall();
 
       _asteroids.push(asteroid);
       if (_asteroids.length > 10) _asteroids.shift();
@@ -71,7 +85,7 @@ export const MainScene = ({}) => {
     return () => {
       clearInterval(interval);
     };
-  }, [gameScreen, gameScreenWidth, gameScreenHeight]);
+  }, [gameScreen, gameScreenWidth, gameScreenHeight, asteroids]);
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
@@ -82,15 +96,7 @@ export const MainScene = ({}) => {
       fillCanvas(canvasCtx);
 
       asteroids.forEach((asteroid, i) => {
-        asteroid.fall({
-          cbFalling: (position) => {},
-          cbEndFall: () => {
-            asteroids.splice(i, 1);
-          },
-          canvasCtx,
-          gameScreenWidth,
-          gameScreenHeight,
-        });
+        asteroid.draw(canvasCtx);
       });
 
       spaceShip.shots.forEach((shot, i) => {
@@ -101,7 +107,7 @@ export const MainScene = ({}) => {
     };
 
     requestAnimationFrame(animateAsteroids);
-  }, [asteroids, gameScreenWidth, gameScreenHeight, spaceShip]);
+  }, [asteroids, gameScreenWidth, gameScreenHeight, spaceShip, fillCanvas]);
 
   const handleKeyPress = useCallback((e, canvasCtx) => {
     if (e.key === 'w' || e.key === 'ArrowUp') {
@@ -118,7 +124,7 @@ export const MainScene = ({}) => {
     }
     if (e.Code === 'Space' || e.key === " " || e.keyCode === 32) {
       spaceShip.shoot(canvasCtx);
-      console.log(spaceShip);
+      shots.current = spaceShip.shots;
     }
   }, [spaceShip]);
 

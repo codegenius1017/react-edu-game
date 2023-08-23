@@ -24,15 +24,20 @@ const asteroidsTypes = [
   },
 ];
 
-export const createAteroid = (gameScreenWidth) => {
+export const createAteroid = ({ gameScreenWidth, gameScreenHeight, cbFalling = () => {}, cbEndFall = () => {}, canvasCtx }) => {
   const randomType = Math.floor(asteroidsTypes.length * Math.random());
-  const aster = { ...asteroidsTypes[randomType] } || {...asteroidsTypes[0]};
+  const aster = { ...asteroidsTypes[randomType] } || { ...asteroidsTypes[0] };
 
   const Asteroid = new AsteroidSprite({
     position: { y: 0, x: Math.floor(Math.random() * gameScreenWidth) },
     width: aster.size,
     height: aster.size,
     ...aster,
+    gameScreenWidth,
+    gameScreenHeight, 
+    cbFalling, 
+    cbEndFall, 
+    canvasCtx
   });
 
   return Asteroid;

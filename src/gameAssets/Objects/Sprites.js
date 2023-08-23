@@ -28,58 +28,41 @@ export class Sprite {
 }
 
 export class AsteroidSprite extends Sprite {
-  constructor({
-    vel,
-    damage,
-    position,
-    scale = 1,
-    framesMax = 1,
-    offset = { x: 0, y: 0 },
-    width,
-    height,
-    imageSrc,
-  }) {
-    super({
-      position,
-      scale,
-      framesMax,
-      offset,
-      width,
-      height,
-      imageSrc,
-    });
+  constructor(props) {
+    super(props);
 
-    this.vel = vel;
-    this.damage = damage;
+    this.cbFalling = props.cbFalling;
+    this.cbFalling = props.cbEndFall;
+    this.gameScreenHeight = props.gameScreenHeight;
+    this.vel = props.vel;
+    this.damage = props.damage;
     this.isAnimating = false;
     this.image.onload = () => {
       this.isLoaded = true;
     };
+
+    console.log(props);
   }
 
-  fall({ cbFalling, cbEndFall, canvasCtx, gameScreenWidth, gameScreenHeight }) {
-    if (this.isAnimating) return; // Evita iniciar uma nova animação se já estiver em andamento
+  fall(
+    // {
+    //   cbFalling = this.cbFalling,
+    //   cbEndFall = this.cbEndFall,
+    //   gameScreenHeight = this.gameScreenHeight
+    // }
+  ) {
+    if (this.intervalFall) clearInterval(this.intervalFall);
 
-    this.isAnimating = true;
-
-    const animate = () => {
-      this.position.y += this.vel;
-
-      if (this.isLoaded) {
-        this.draw(canvasCtx);
-      }
-
-      if (this.position.y < gameScreenHeight) {
-        requestAnimationFrame(animate);
+    this.intervalFall = setInterval(() => {
+      if (this.position.y < this.gameScreenHeight) {
+        this.position.y += this.vel;
       } else {
-        this.isAnimating = false;
-        cbEndFall();
+        clearInterval(this.intervalFall);
+        // this.cbEndFall();
       }
 
-      cbFalling();
-    };
-
-    animate();
+      // this.cbFalling();
+    }, CONST.defaultInterval)
   }
 
   clearCanvas(c) {
@@ -99,7 +82,7 @@ export class AsteroidSprite extends Sprite {
   }
 
   draw(c) {
-    c.drawImage(
+    if (this.isLoaded) c.drawImage(
       this.image,
       this.position.x,
       this.position.y,
@@ -127,8 +110,7 @@ export class Shot {
   draw(c) {
     c.fillStyle = this.color;
     c.beginPath();
-    c.arc(this.position.x, this.position.y, this.width, 0,  2 * Math.PI);
-    // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    c.arc(this.position.x, this.position.y, this.width, 0, 2 * Math.PI);
     c.fill()
   }
 
@@ -138,7 +120,6 @@ export class Shot {
       x: this.spaceshipData.position.x + this.spaceshipData.width / 2 - this.width / 2,
       y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
     };
-    this.draw(c);
 
     if (this.duration) this.timeout = setTimeout(() => {
       this.active = false;
@@ -169,7 +150,6 @@ export class Shot {
       if (finalPositionY < this.position.y) this.position.y -= this.vel;
       if (finalPositionX && finalPositionX < this.position.x) this.position.x -= this.vel;
 
-      this.draw(c);
     }, CONST.defaultInterval);
 
   }
@@ -178,15 +158,6 @@ export class Shot {
     if (this.intervalExpand) clearInterval(this.intervalExpand);
 
     this.intervalExpand = setInterval(() => {
-      // if (!this.active) {
-      //   this.destroyIntervals();
-      //   return;
-      // }
-
-      // if (finalWidth === this.width &&
-      //   finalHeight === this.height
-      // ) clearInterval(this.intervalMove);
-
       if (finalWidth > this.width) this.width += this.vel;
       if (finalHeight > this.height) this.height += this.vel;
       if (finalWidth < this.width) this.width -= this.vel;
