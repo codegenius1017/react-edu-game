@@ -126,13 +126,16 @@ export class Shot {
 
   draw(c) {
     c.fillStyle = this.color;
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    c.beginPath();
+    c.arc(this.position.x, this.position.y, this.width, 0,  2 * Math.PI);
+    // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    c.fill()
   }
 
   ignite(c) {
     this.active = true;
     this.position = {
-      x: this.spaceshipData.position.x + this.spaceshipData.width / 2,
+      x: this.spaceshipData.position.x + this.spaceshipData.width / 2 - this.width / 2,
       y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
     };
     this.draw(c);
@@ -154,9 +157,8 @@ export class Shot {
         return;
       }
 
-      if (finalPositionY >= this.position.y 
-        // &&
-        // finalPositionX === this.position.x
+      if (
+        finalPositionY >= this.position.y
       ) {
         this.active = false;
         clearInterval(this.intervalMove);

@@ -66,7 +66,7 @@ export const MainScene = ({}) => {
       if (_asteroids.length > 10) _asteroids.shift();
 
       setAsteroids(_asteroids);
-    }, 1000);
+    }, 5000);
 
     return () => {
       clearInterval(interval);
@@ -105,16 +105,16 @@ export const MainScene = ({}) => {
 
   const handleKeyPress = useCallback((e, canvasCtx) => {
     if (e.key === 'w' || e.key === 'ArrowUp') {
-      spaceShip.move({ top: 5, canvasCtx });
+      spaceShip.move({ top: 10, canvasCtx });
     }
     if (e.key === 's' || e.key === 'ArrowDown') {
-      spaceShip.move({ bottom: 5, canvasCtx });
+      spaceShip.move({ bottom: 10, canvasCtx });
     }
     if (e.key === 'd' || e.key === 'ArrowRight') {
-      spaceShip.move({ right: 5, canvasCtx });
+      spaceShip.move({ right: 10, canvasCtx });
     }
     if (e.key === 'a' || e.key === 'ArrowLeft') {
-      spaceShip.move({ left: 5, canvasCtx });
+      spaceShip.move({ left: 10, canvasCtx });
     }
     if (e.Code === 'Space' || e.key === " " || e.keyCode === 32) {
       spaceShip.shoot(canvasCtx);

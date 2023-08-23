@@ -3,8 +3,8 @@ import { Shot } from "./Sprites";
 export const ShotTypes = {
   default: {
     getSprite: (spaceshipData) => new Shot({
-      width: 30,
-      height: 30,
+      width: 10,
+      height: 10,
       color: "red",
       damage: spaceshipData.damage,
       vel: 5,
