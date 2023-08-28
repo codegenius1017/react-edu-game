@@ -29,7 +29,7 @@ export const createAteroid = ({ gameScreenWidth, gameScreenHeight, cbFalling = (
   const aster = { ...asteroidsTypes[randomType] } || { ...asteroidsTypes[0] };
 
   const Asteroid = new AsteroidSprite({
-    position: { y: 0, x: Math.floor(Math.random() * gameScreenWidth) },
+    position: { y: 0, x: Math.floor(Math.random() * (gameScreenWidth - aster.size)) },
     width: aster.size,
     height: aster.size,
     ...aster,

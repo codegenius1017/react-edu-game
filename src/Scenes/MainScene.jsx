@@ -10,8 +10,9 @@ import Canvas from '../Components/Canvas';
 import { GameContext } from '../contexts/GameContext';
 import { createAteroid } from '../gameAssets/Objects/Asteroid';
 import { createSpaceShip } from '../gameAssets/Objects/SpaceShip';
+import { CONST } from '../gameAssets/Objects/Global';
 
-export const MainScene = ({}) => {
+export const MainScene = ({ }) => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const gameScreen = useRef(null);
   const [asteroids, setAsteroids] = useState([]);
@@ -48,13 +49,13 @@ export const MainScene = ({}) => {
     ), [gameScreenHeight, gameScreenWidth],
   );
 
-  const fillCanvas = (c) => {
+  const fillCanvas = useCallback((c) => {
     const img = new Image(gameScreenWidth, gameScreenHeight);
     img.src = `./images/backgrounds/space${level}.gif`;
     img.onload = () => {
       c.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
     };
-  };
+  }, [gameScreenWidth, gameScreenHeight, level]);
 
   useEffect(() => {
     const _asteroids = [...asteroids];
@@ -90,9 +91,8 @@ export const MainScene = ({}) => {
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
-    const animateAsteroids = () => {
-      requestAnimationFrame(animateAsteroids);
-
+    const drawEverything = () => {
+      requestAnimationFrame(drawEverything);
       fillCanvas(canvasCtx);
 
       asteroids.forEach((asteroid, i) => {
@@ -100,38 +100,76 @@ export const MainScene = ({}) => {
       });
 
       spaceShip.shots.forEach((shot, i) => {
-        if(!shot.active) return spaceShip.shots.splice(i, 1);
+        if (!shot.active) return spaceShip.shots.splice(i, 1);
         shot.draw(canvasCtx);
       });
       spaceShip.draw(canvasCtx);
     };
 
-    requestAnimationFrame(animateAsteroids);
+    requestAnimationFrame(drawEverything);
   }, [asteroids, gameScreenWidth, gameScreenHeight, spaceShip, fillCanvas]);
 
-  const handleKeyPress = useCallback((e, canvasCtx) => {
-    if (e.key === 'w' || e.key === 'ArrowUp') {
-      spaceShip.move({ top: 10, canvasCtx });
-    }
-    if (e.key === 's' || e.key === 'ArrowDown') {
-      spaceShip.move({ bottom: 10, canvasCtx });
-    }
-    if (e.key === 'd' || e.key === 'ArrowRight') {
-      spaceShip.move({ right: 10, canvasCtx });
-    }
-    if (e.key === 'a' || e.key === 'ArrowLeft') {
-      spaceShip.move({ left: 10, canvasCtx });
-    }
+  const handleKeyDown = useCallback((e, canvasCtx) => {
     if (e.Code === 'Space' || e.key === " " || e.keyCode === 32) {
       spaceShip.shoot(canvasCtx);
       shots.current = spaceShip.shots;
     }
   }, [spaceShip]);
 
+  const handleKeyPress = useCallback((e, canvasCtx) => {
+
+    if (e.key === 'w' || e.key === 'ArrowUp') {
+      const upInterval = setInterval(() => {
+        spaceShip.move({ top: 7, canvasCtx });
+      }, 25);
+
+      window.addEventListener("keyup", (upKeyEvent) => {
+        if (upKeyEvent.key === e.key) {
+          clearInterval(upInterval);
+        }
+      })
+    }
+    if (e.key === 's' || e.key === 'ArrowDown') {
+      const downInterval = setInterval(() => {
+        spaceShip.move({ bottom: 7, canvasCtx });
+      }, 25);
+
+      window.addEventListener("keyup", (upKeyEvent) => {
+        if (upKeyEvent.key === e.key) {
+          clearInterval(downInterval);
+        }
+      })
+    }
+    if (e.key === 'd' || e.key === 'ArrowRight') {
+      const rightInterval = setInterval(() => {
+        spaceShip.move({ right: 7, canvasCtx });
+      }, 25);
+
+      window.addEventListener("keyup", (upKeyEvent) => {
+        if (upKeyEvent.key === e.key) {
+          clearInterval(rightInterval);
+        }
+      })
+    }
+    if (e.key === 'a' || e.key === 'ArrowLeft') {
+      const letfInterval = setInterval(() => {
+        spaceShip.move({ left: 7, canvasCtx });
+      }, 25);
+
+      window.addEventListener("keyup", (upKeyEvent) => {
+        if (upKeyEvent.key === e.key) {
+          clearInterval(letfInterval);
+        }
+      })
+    }
+
+  }, [spaceShip])
+
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
-    window.addEventListener('keydown', (e) => handleKeyPress(e, canvasCtx));
+    window.addEventListener('keydown', (e) => handleKeyDown(e, canvasCtx));
+    window.addEventListener('keypress', (e) => handleKeyPress(e, canvasCtx));
   }, [gameScreen, handleKeyPress]);
 
-  return <div id="main-screen" style={{overflow: 'hidden'}}>{gameCanvas}</div>;
+  return <div id="main-screen" style={{ overflow: 'hidden' }}>{gameCanvas}</div>;
 };

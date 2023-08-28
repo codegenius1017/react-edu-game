@@ -1,4 +1,3 @@
-import { cloneDeep } from "lodash";
 import { CONST } from "./Global";
 import { ShotTypes } from "./Shots";
 
@@ -41,16 +40,10 @@ export class AsteroidSprite extends Sprite {
       this.isLoaded = true;
     };
 
-    console.log(props);
+    // console.log(props);
   }
 
-  fall(
-    // {
-    //   cbFalling = this.cbFalling,
-    //   cbEndFall = this.cbEndFall,
-    //   gameScreenHeight = this.gameScreenHeight
-    // }
-  ) {
+  fall() {
     if (this.intervalFall) clearInterval(this.intervalFall);
 
     this.intervalFall = setInterval(() => {
@@ -58,10 +51,10 @@ export class AsteroidSprite extends Sprite {
         this.position.y += this.vel;
       } else {
         clearInterval(this.intervalFall);
-        // this.cbEndFall();
+        if (typeof this.cbEndFall === "function") this.cbEndFall();
       }
 
-      // this.cbFalling();
+      if (typeof this.cbFalling === "function") this.cbFalling();
     }, CONST.defaultInterval)
   }
 
@@ -176,7 +169,7 @@ export class Shot {
 }
 
 export class SpaceShipSprite extends Sprite {
-  constructor({ damage, position, width, height, imageSrc, shotType = "default" }) {
+  constructor({ damage, position, width, height, imageSrc, shotType = "default", maxPositions }) {
     super({
       position,
       width,
@@ -187,14 +180,15 @@ export class SpaceShipSprite extends Sprite {
     this.damage = damage;
     this.isAnimating = false;
     this.shots = [];
-    this.shotType = shotType
+    this.shotType = shotType;
+    this.maxPositions = maxPositions;
   }
 
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
-    this.position.x += right;
-    this.position.x -= left;
-    this.position.y += bottom;
-    this.position.y -= top;
+    if (this.position.x + right + (this.width / 2) <= this.maxPositions.x) this.position.x += right;
+    if (this.position.x - left >= 0 - (this.width / 2)) this.position.x -= left;
+    if (this.position.y + bottom + this.height <= this.maxPositions.y) this.position.y += bottom;
+    if (this.position.y - top >= 0) this.position.y -= top;
 
     if (this.isLoaded) {
       this.draw(canvasCtx);
