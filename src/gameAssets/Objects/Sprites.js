@@ -36,6 +36,7 @@ export class AsteroidSprite extends Sprite {
     this.vel = props.vel;
     this.damage = props.damage;
     this.isAnimating = false;
+    this.active = true;
     this.image.onload = () => {
       this.isLoaded = true;
     };
@@ -49,6 +50,7 @@ export class AsteroidSprite extends Sprite {
         this.position.y += this.vel;
       } else {
         clearInterval(this.intervalFall);
+        this.active = false;
         if (typeof this.cbEndFall === "function") this.cbEndFall();
       }
 
@@ -63,16 +65,17 @@ export class AsteroidSprite extends Sprite {
       this.width,
       this.height,
     );
-    c.fillStyle = 'black';
-    c.fillRect(
-      this.position.x,
-      this.position.y - this.vel,
-      this.width,
-      this.height,
-    );
+    // c.fillStyle = 'black';
+    // c.fillRect(
+    //   this.position.x,
+    //   this.position.y - this.vel,
+    //   this.width,
+    //   this.height,
+    // );
   }
 
   draw(c) {
+    if(!this.active) return;
     if (this.isLoaded) c.drawImage(
       this.image,
       this.position.x - this.width / 2,

@@ -11,6 +11,7 @@ import { GameContext } from '../contexts/GameContext';
 import { createAteroid } from '../gameAssets/Objects/Asteroid';
 import { createSpaceShip } from '../gameAssets/Objects/SpaceShip';
 import { CONST, calcCollapse } from '../gameAssets/Objects/Global';
+import style from "./MainScene.module.scss";
 
 export const MainScene = ({ }) => {
   const { gameState, gameDispatch } = useContext(GameContext);
@@ -22,6 +23,7 @@ export const MainScene = ({ }) => {
   const { fps } = gameState;
   const fpsInterval = 1000 / fps;
   let msPrev = window.performance.now();
+  let currentAnimation;
 
   const [asteroids, setAsteroids] = useState([]);
   const [points, setPoints] = useState(0);
@@ -53,14 +55,6 @@ export const MainScene = ({ }) => {
     ), [gameScreenHeight, gameScreenWidth],
   );
 
-  const fillCanvas = useCallback((c) => {
-    const img = new Image(gameScreenWidth, gameScreenHeight);
-    img.src = `./images/backgrounds/space${level}.gif`;
-    img.onload = () => {
-      c.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
-    };
-  }, [gameScreenWidth, gameScreenHeight, level]);
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   function calcShotOnAsteroidRange(shots, indexAsteroid) {
     const asteroid = asteroids[indexAsteroid];
@@ -74,23 +68,32 @@ export const MainScene = ({ }) => {
     }
   }
 
+  const fillCanvas = useCallback((c) => {
+    // const img = new Image(gameScreenWidth, gameScreenHeight);
+    // img.src = `./images/backgrounds/space${level}.gif`;
+    // img.onload = () => {
+    //   c.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
+    // };
+
+    c.clearRect(0, 0, gameScreenWidth, gameScreenHeight);
+  }, [gameScreenWidth, gameScreenHeight]);
+
   const drawEverything = useCallback((canvasCtx, asteroids) => {
     if (gameState.paused) return;
     if (!canvasCtx) return
     // console.log(asteroids.length);
-    // requestAnimationFrame(() => drawEverything(canvasCtx, asteroids));
 
-    // const msNow = window.performance.now();
-    // const elapsed = msNow - msPrev;
+    const msNow = window.performance.now();
+    const elapsed = msNow - msPrev;
 
-    // if (elapsed < fpsInterval) return
+    if (elapsed > 1000) return;
 
-    // msPrev = msNow - (elapsed % fpsInterval); // 3.34
+    msPrev = msNow - (elapsed % fpsInterval); // 3.34
 
     fillCanvas(canvasCtx);
 
     for (const asteroid of asteroids) {
-      asteroid.draw(canvasCtx);
+      if (asteroid.active) asteroid.draw(canvasCtx);
     };
 
     spaceShip.shots.forEach((shot, i) => {
@@ -99,36 +102,8 @@ export const MainScene = ({ }) => {
     });
 
     spaceShip.draw(canvasCtx);
+    currentAnimation = requestAnimationFrame(() => drawEverything(canvasCtx, asteroids));
   }, [fillCanvas, gameState.paused, spaceShip]);
-
-  useEffect(() => {
-    const _asteroids = [...asteroids];
-    const canvasCtx = gameScreen?.current?.getContext('2d');
-
-    const interval = setInterval(() => {
-      const indexAsteroid = _asteroids.length;
-      const asteroid = createAteroid({
-        cbEndFall: () => {
-          asteroids.splice(indexAsteroid, 1);
-        },
-        canvasCtx,
-        gameScreenWidth,
-        gameScreenHeight,
-      });
-
-      asteroid.fall();
-
-      _asteroids.push(asteroid);
-      if (_asteroids.length > 10) _asteroids.shift();
-
-      setAsteroids(_asteroids);
-    }, 5000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [gameScreen, gameScreenWidth, gameScreenHeight, asteroids, calcShotOnAsteroidRange]);
-
 
   const handleKeyDown = useCallback((e, canvasCtx) => {
     if (e.Code === 'Space' || e.key === " " || e.keyCode === 32) {
@@ -188,8 +163,8 @@ export const MainScene = ({ }) => {
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
-    const a = setInterval(() => drawEverything(canvasCtx, asteroids), CONST.defaultInterval);
-    return () => clearInterval(a);
+    currentAnimation = requestAnimationFrame(() => drawEverything(canvasCtx, asteroids));
+    return () => cancelAnimationFrame(currentAnimation);
   }, [asteroids, canvasCtx, drawEverything]);
 
   useEffect(() => {
@@ -198,5 +173,41 @@ export const MainScene = ({ }) => {
     window.addEventListener('keypress', (e) => handleKeyPress(e, canvasCtx));
   }, [gameScreen, handleKeyPress, handleKeyDown]);
 
-  return <div id="main-screen" style={{ overflow: 'hidden' }}>{gameCanvas}</div>;
+  useEffect(() => {
+    const _asteroids = [...asteroids];
+    const canvasCtx = gameScreen?.current?.getContext('2d');
+
+    const interval = setInterval(() => {
+      const indexAsteroid = _asteroids.length;
+      const asteroid = createAteroid({
+        cbFalling: () => calcShotOnAsteroidRange(),
+        cbEndFall: () => {
+          asteroids[indexAsteroid]?.
+            asteroids.splice(indexAsteroid, 1);
+        },
+        canvasCtx,
+        gameScreenWidth,
+        gameScreenHeight,
+      });
+
+      asteroid.fall();
+
+      _asteroids.push(asteroid);
+      if (_asteroids.length > 10) _asteroids.shift();
+
+      setAsteroids(_asteroids);
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [gameScreen, gameScreenWidth, gameScreenHeight, asteroids, calcShotOnAsteroidRange]);
+
+  return <div id="main-screen" style={{ overflow: 'hidden' }}>
+    <div className={`${style["post-image"]}`}>SCORE: {points}</div>
+    <div
+      className='game-canvas-container'
+      style={{ minHeight: "fit-content", minWidth: "fit-content" }}
+    >{gameCanvas}</div>
+  </div>;
 };
