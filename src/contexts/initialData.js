@@ -3,5 +3,6 @@ export const initialData = {
   health: 100,
   level: 0,
   gameOver: false,
-  spaceshipId: 0
+  spaceshipId: 0,
+  fps: 60,
 }

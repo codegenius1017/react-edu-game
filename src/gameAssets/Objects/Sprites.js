@@ -39,8 +39,6 @@ export class AsteroidSprite extends Sprite {
     this.image.onload = () => {
       this.isLoaded = true;
     };
-
-    // console.log(props);
   }
 
   fall() {
@@ -77,8 +75,8 @@ export class AsteroidSprite extends Sprite {
   draw(c) {
     if (this.isLoaded) c.drawImage(
       this.image,
-      this.position.x,
-      this.position.y,
+      this.position.x - this.width / 2,
+      this.position.y - this.height / 2,
       this.width,
       this.height,
     );
@@ -103,7 +101,7 @@ export class Shot {
   draw(c) {
     c.fillStyle = this.color;
     c.beginPath();
-    c.arc(this.position.x, this.position.y, this.width, 0, 2 * Math.PI);
+    c.arc(this.position.x - this.width / 2, this.position.y - this.height / 2, this.width, 0, 2 * Math.PI);
     c.fill()
   }
 
@@ -118,11 +116,11 @@ export class Shot {
       this.active = false;
     }, this.duration);
 
-    if (this.finalCordinates) this.moveUntilFinalCordinates(c);
-    if (this.finalSizes) this.expandUntilFinalSize(c);
+    if (this.finalCordinates) this.moveUntilFinalCordinates();
+    if (this.finalSizes) this.expandUntilFinalSize();
   }
 
-  moveUntilFinalCordinates(c, finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y) {
+  moveUntilFinalCordinates(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y) {
     if (this.intervalMove) clearInterval(this.intervalMove);
 
     this.intervalMove = setInterval(() => {
@@ -185,10 +183,10 @@ export class SpaceShipSprite extends Sprite {
   }
 
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
-    if (this.position.x + right + (this.width / 2) <= this.maxPositions.x) this.position.x += right;
-    if (this.position.x - left >= 0 - (this.width / 2)) this.position.x -= left;
-    if (this.position.y + bottom + this.height <= this.maxPositions.y) this.position.y += bottom;
-    if (this.position.y - top >= 0) this.position.y -= top;
+    if (this.position.x + right + this.width - (this.width / 3) <= this.maxPositions.x) this.position.x += right;
+    if (this.position.x - left >= 0 - (this.width / 3)) this.position.x -= left;
+    if (this.position.y + bottom + (this.height /2) <= this.maxPositions.y) this.position.y += bottom;
+    if (this.position.y - top >= 0 - this.height / 2) this.position.y -= top;
 
     if (this.isLoaded) {
       this.draw(canvasCtx);
