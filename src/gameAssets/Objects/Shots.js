@@ -7,7 +7,7 @@ export const ShotTypes = {
       height: 10,
       color: "red",
       damage: spaceshipData.damage,
-      vel: 5,
+      vel: 3,
       finalCordinates: { y: -30 },
       spaceshipData,
     })

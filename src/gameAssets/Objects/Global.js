@@ -4,6 +4,7 @@ export const CONST = {
 }
 
 export function calcCollapse(objToCollapse, collapse){
+  if(!collapse || !objToCollapse) return false;
   const collapsed =  (
     objToCollapse.position.y + objToCollapse.height >= collapse.position.y &&
     objToCollapse.position.x + objToCollapse.width >= collapse.position.x &&

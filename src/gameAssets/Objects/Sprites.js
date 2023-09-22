@@ -2,10 +2,11 @@ import { CONST } from "./Global";
 import { ShotTypes } from "./Shots";
 
 export class Sprite {
-  constructor({ position, imageSrc, width, height }) {
+  constructor({ position, imageSrc, width, height, finalCordinates }) {
     this.position = position;
     this.width = width;
     this.height = height;
+    this.finalCordinates = finalCordinates;
     this.image = new Image(1000, 1000);
     this.image.src = imageSrc;
     this.imageSrc = imageSrc;
@@ -24,6 +25,21 @@ export class Sprite {
         this.height,
       );
   }
+
+  move(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y, cb) {
+    if (
+      finalPositionY >= this.position.y
+    ) {
+      this.active = false;
+    }
+
+    if (finalPositionY > this.position.y) this.position.y += this.vel;
+    if (finalPositionX && finalPositionX > this.position.x) this.position.x += this.vel;
+    if (finalPositionY < this.position.y) this.position.y -= this.vel;
+    if (finalPositionX && finalPositionX < this.position.x) this.position.x -= this.vel;
+
+    if (cb) cb();
+  }
 }
 
 export class AsteroidSprite extends Sprite {
@@ -32,7 +48,7 @@ export class AsteroidSprite extends Sprite {
 
     this.cbFalling = props.cbFalling;
     this.cbFalling = props.cbEndFall;
-    this.gameScreenHeight = props.gameScreenHeight;
+    this.finalCordinates = { y: props.gameScreenHeight };
     this.vel = props.vel;
     this.damage = props.damage;
     this.isAnimating = false;
@@ -65,17 +81,22 @@ export class AsteroidSprite extends Sprite {
       this.width,
       this.height,
     );
-    // c.fillStyle = 'black';
-    // c.fillRect(
-    //   this.position.x,
-    //   this.position.y - this.vel,
-    //   this.width,
-    //   this.height,
-    // );
+  }
+
+  move(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y, cb) {
+    if (
+      finalPositionY <= this.position.y
+    ) {
+      this.active = false;
+    }
+
+    if (finalPositionY > this.position.y) this.position.y += this.vel;
+    if (finalPositionX && finalPositionX > this.position.x) this.position.x += this.vel;
+
+    if (cb) cb();
   }
 
   draw(c) {
-    if(!this.active) return;
     if (this.isLoaded) c.drawImage(
       this.image,
       this.position.x - this.width / 2,
@@ -86,15 +107,12 @@ export class AsteroidSprite extends Sprite {
   }
 }
 
-export class Shot {
+export class Shot extends Sprite {
   constructor({ width, height, duration, color, damage, position, finalCordinates, finalSizes, vel, spaceshipData }) {
-    this.width = width;
-    this.height = height;
+    super({width, height, position, finalCordinates});
     this.duration = duration;
     this.color = color;
     this.damage = damage;
-    this.position = position;
-    this.finalCordinates = finalCordinates;
     this.finalSizes = finalSizes;
     this.spaceshipData = spaceshipData;
     this.vel = vel;
@@ -105,7 +123,7 @@ export class Shot {
     c.fillStyle = this.color;
     c.beginPath();
     c.arc(this.position.x - this.width / 2, this.position.y - this.height / 2, this.width, 0, 2 * Math.PI);
-    c.fill()
+    c.fill();
   }
 
   ignite(c) {
@@ -119,8 +137,8 @@ export class Shot {
       this.active = false;
     }, this.duration);
 
-    if (this.finalCordinates) this.moveUntilFinalCordinates();
-    if (this.finalSizes) this.expandUntilFinalSize();
+    // if (this.finalCordinates) this.moveUntilFinalCordinates();
+    // if (this.finalSizes) this.expandUntilFinalSize();
   }
 
   moveUntilFinalCordinates(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y) {
@@ -166,6 +184,7 @@ export class Shot {
     if (this.intervalExpand) clearInterval(this.intervalExpand);
     if (this.intervalMove) clearInterval(this.intervalMove);
     if (this.timeout) clearTimeout(this.timeout);
+    if (this.moveTimeOut) clearTimeout(this.moveTimeOut);
   }
 }
 
@@ -188,7 +207,7 @@ export class SpaceShipSprite extends Sprite {
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
     if (this.position.x + right + this.width - (this.width / 3) <= this.maxPositions.x) this.position.x += right;
     if (this.position.x - left >= 0 - (this.width / 3)) this.position.x -= left;
-    if (this.position.y + bottom + (this.height /2) <= this.maxPositions.y) this.position.y += bottom;
+    if (this.position.y + bottom + (this.height / 2) <= this.maxPositions.y) this.position.y += bottom;
     if (this.position.y - top >= 0 - this.height / 2) this.position.y -= top;
 
     if (this.isLoaded) {
@@ -199,6 +218,7 @@ export class SpaceShipSprite extends Sprite {
   shoot(c, type) {
     const shot = ShotTypes[type || this.shotType].getSprite(this);
     shot.ignite(c);
+    shot.move();
 
     this.shots.push(shot);
   }
