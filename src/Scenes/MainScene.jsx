@@ -67,13 +67,15 @@ export const MainScene = ({}) => {
         vel: asteroid.vel / 2,
       };
 
-      _asteroids.push(copyAsteroid({
-        ...infoAsteroid,
-        finalCordinates: {
-          x:asteroid.position.x - asteroid.width / 2,
-          y: asteroid.finalCordinates.y,
-        },
-      }));
+      _asteroids.push(
+        copyAsteroid({
+          ...infoAsteroid,
+          finalCordinates: {
+            x: asteroid.position.x - asteroid.width / 2,
+            y: asteroid.finalCordinates.y,
+          },
+        }),
+      );
       _asteroids.push(
         copyAsteroid({
           ...infoAsteroid,
@@ -94,21 +96,21 @@ export const MainScene = ({}) => {
       let indexAsteroid = 0;
       for (const asteroid of asteroids) {
         if (calcCollapse(asteroid, shot) && shot.active) {
+          shot.active = false;
           asteroid.active = false;
           asteroids.splice(indexAsteroid, 1);
           asteroid.health -= shot.damage;
-          shot.active = false;
           setPoints((prev) => prev + 1);
           if (asteroid.health >= 1) {
             mitoseTheAsteroid(asteroid);
           } else {
             setAsteroids(asteroids);
-          };
+          }
+
+          return shot;
         }
         indexAsteroid++;
       }
-
-      return shot;
     },
     [mitoseTheAsteroid],
   );
@@ -122,28 +124,32 @@ export const MainScene = ({}) => {
 
   const moveEverything = useCallback(
     (shots, asteroids) => {
-      let indexShot = 0;
-      let indexAster = 0;
-
-      for (const shot of shots) {
+      for (const [indexShot, shot] of shots.entries()) {
         if (!shot.active) {
           shots.splice(indexShot, 1);
           continue;
         }
         if (shot.move)
-          shot.move(undefined, undefined, () =>
-          shots[indexShot] = calcShotOnAsteroidRange(shot, asteroids),
+          shot.move(
+            undefined,
+            undefined,
+            () => {
+              const returnedShot = calcShotOnAsteroidRange(shot, asteroids);
+
+              if(returnedShot){
+                shots[indexShot] = returnedShot;
+                shots.current = shots;
+              }
+            },
           );
-        indexShot++;
       }
 
-      for (const asteroid of asteroids) {
+      for (const [indexAster, asteroid] of asteroids.entries()) {
         if (!asteroid.active) {
           asteroids.splice(indexAster, 1);
           continue;
         }
         if (asteroid.move) asteroid.move();
-        indexAster++;
       }
     },
     [calcShotOnAsteroidRange],
@@ -160,7 +166,7 @@ export const MainScene = ({}) => {
         if (asteroid.active) asteroid.draw(canvasCtx);
       }
 
-      for (const shot of spaceShip.shots) {
+      for (const shot of shots.current) {
         if (shot.active) shot.draw(canvasCtx);
       }
 
@@ -173,7 +179,7 @@ export const MainScene = ({}) => {
     (e, canvasCtx) => {
       if (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) {
         spaceShip.shoot(canvasCtx);
-        shots.current = spaceShip.shots.map((shot) => shot.position);
+        shots.current = spaceShip.shots.map((shot) => shot);
       }
     },
     [spaceShip],

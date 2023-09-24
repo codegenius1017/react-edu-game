@@ -41,14 +41,18 @@ export class Sprite {
       this.active = false;
     }
 
-    if (goingDown && finalPositionY > this.position.y)
+    if (goingDown && finalPositionY > this.position.y) {
       this.position.y += this.vel;
-    if (!goingDown && finalPositionY < this.position.y)
+    } else if (!goingDown && finalPositionY < this.position.y)
       this.position.y -= this.vel;
 
-    if (goingRigth && finalPositionX && finalPositionX > this.position.x)
+    if (goingRigth && finalPositionX && finalPositionX > this.position.x) {
       this.position.x += this.vel * CONST.velDistancingMitosedAsteroids;
-    if (!goingRigth && finalPositionX && finalPositionX < this.position.x)
+    } else if (
+      !goingRigth &&
+      finalPositionX &&
+      finalPositionX < this.position.x
+    )
       this.position.x -= this.vel * CONST.velDistancingMitosedAsteroids;
 
     if (cb) cb();
