@@ -35,9 +35,9 @@ export class Sprite {
     const goingDown = this.initialPosition.y < this.finalCordinates.y;
     const goingRigth = this.initialPosition.x < this.finalCordinates.x;
 
-    if (goingDown && finalPositionY >= this.position.y) {
+    if (goingDown && finalPositionY <= this.position.y) {
       this.active = false;
-    } else if (finalPositionY <= this.position.y) {
+    } else if (!goingDown && finalPositionY >= this.position.y) {
       this.active = false;
     }
 
@@ -47,9 +47,9 @@ export class Sprite {
       this.position.y -= this.vel;
 
     if (goingRigth && finalPositionX && finalPositionX > this.position.x)
-      this.position.x += this.vel;
+      this.position.x += this.vel * CONST.velDistancingMitosedAsteroids;
     if (!goingRigth && finalPositionX && finalPositionX < this.position.x)
-      this.position.x -= this.vel;
+      this.position.x -= this.vel * CONST.velDistancingMitosedAsteroids;
 
     if (cb) cb();
   }
@@ -61,30 +61,15 @@ export class AsteroidSprite extends Sprite {
 
     this.cbFalling = props.cbFalling;
     this.cbFalling = props.cbEndFall;
-    this.finalCordinates = { y: props.gameScreenHeight };
+    this.finalCordinates = props.finalCordinates;
     this.vel = props.vel;
     this.damage = props.damage;
     this.isAnimating = false;
     this.active = true;
+    this.health = props.health;
     this.image.onload = () => {
       this.isLoaded = true;
     };
-  }
-
-  fall() {
-    if (this.intervalFall) clearInterval(this.intervalFall);
-
-    this.intervalFall = setInterval(() => {
-      if (this.position.y < this.gameScreenHeight) {
-        this.position.y += this.vel;
-      } else {
-        clearInterval(this.intervalFall);
-        this.active = false;
-        if (typeof this.cbEndFall === 'function') this.cbEndFall();
-      }
-
-      if (typeof this.cbFalling === 'function') this.cbFalling();
-    }, CONST.defaultInterval);
   }
 
   clearCanvas(c) {

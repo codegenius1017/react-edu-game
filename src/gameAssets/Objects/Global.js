@@ -1,6 +1,7 @@
 export const CONST = {
   defaultInterval: 10,
-  velSizingAnimation: 5
+  velSizingAnimation: 5,
+  velDistancingMitosedAsteroids: 8
 }
 
 export function calcCollapse(objToCollapse, collapse){
