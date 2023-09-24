@@ -12,17 +12,27 @@ export const gameReducer = (state, action) => {
     case types.GAME_OVER: {
       return {...state, gameOver: true};
     }
-    
+
     case types.RESTART: {
       return {
-        ...state, 
-        points: 0, 
+        ...state,
+        points: 0,
         health: 100,
         level: 0,
         gameOver: false
       }
     }
-    
+
+    case types.LOSE_LIFE: {
+      const updatedHealth = state.health -= (action.payload.damage || 1);
+
+      return {
+        ...state,
+        health: updatedHealth,
+        gameOver: updatedHealth > 0 ? false : true,
+      }
+    }
+
     case types.LEVEL_UP: {
       let level = state;
       level++;

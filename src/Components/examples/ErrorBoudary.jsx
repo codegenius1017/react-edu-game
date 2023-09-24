@@ -20,7 +20,7 @@ class MyErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     // Você também pode registrar o erro em um serviço de relatórios de erro
-    console.log(error, errorInfo);
+    console.log("deu esse erro aqui ------> ",error, errorInfo);
   }
 
   render() {

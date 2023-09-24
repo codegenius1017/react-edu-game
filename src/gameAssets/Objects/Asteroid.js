@@ -34,9 +34,9 @@ export const createAteroid = ({ gameScreenWidth, gameScreenHeight, cbFalling = (
     height: aster.size,
     ...aster,
     gameScreenWidth,
-    gameScreenHeight, 
-    cbFalling, 
-    cbEndFall, 
+    gameScreenHeight,
+    cbFalling,
+    cbEndFall,
     canvasCtx
   });
 

@@ -1,8 +1,9 @@
-import { CONST } from "./Global";
-import { ShotTypes } from "./Shots";
+import { CONST } from './Global';
+import { ShotTypes } from './Shots';
 
 export class Sprite {
   constructor({ position, imageSrc, width, height, finalCordinates }) {
+    this.initialPosition = { ...position };
     this.position = position;
     this.width = width;
     this.height = height;
@@ -26,17 +27,29 @@ export class Sprite {
       );
   }
 
-  move(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y, cb) {
-    if (
-      finalPositionY >= this.position.y
-    ) {
+  move(
+    finalPositionX = this.finalCordinates.x,
+    finalPositionY = this.finalCordinates.y,
+    cb,
+  ) {
+    const goingDown = this.initialPosition.y < this.finalCordinates.y;
+    const goingRigth = this.initialPosition.x < this.finalCordinates.x;
+
+    if (goingDown && finalPositionY >= this.position.y) {
+      this.active = false;
+    } else if (finalPositionY <= this.position.y) {
       this.active = false;
     }
 
-    if (finalPositionY > this.position.y) this.position.y += this.vel;
-    if (finalPositionX && finalPositionX > this.position.x) this.position.x += this.vel;
-    if (finalPositionY < this.position.y) this.position.y -= this.vel;
-    if (finalPositionX && finalPositionX < this.position.x) this.position.x -= this.vel;
+    if (goingDown && finalPositionY > this.position.y)
+      this.position.y += this.vel;
+    if (!goingDown && finalPositionY < this.position.y)
+      this.position.y -= this.vel;
+
+    if (goingRigth && finalPositionX && finalPositionX > this.position.x)
+      this.position.x += this.vel;
+    if (!goingRigth && finalPositionX && finalPositionX < this.position.x)
+      this.position.x -= this.vel;
 
     if (cb) cb();
   }
@@ -67,11 +80,11 @@ export class AsteroidSprite extends Sprite {
       } else {
         clearInterval(this.intervalFall);
         this.active = false;
-        if (typeof this.cbEndFall === "function") this.cbEndFall();
+        if (typeof this.cbEndFall === 'function') this.cbEndFall();
       }
 
-      if (typeof this.cbFalling === "function") this.cbFalling();
-    }, CONST.defaultInterval)
+      if (typeof this.cbFalling === 'function') this.cbFalling();
+    }, CONST.defaultInterval);
   }
 
   clearCanvas(c) {
@@ -83,33 +96,32 @@ export class AsteroidSprite extends Sprite {
     );
   }
 
-  move(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y, cb) {
-    if (
-      finalPositionY <= this.position.y
-    ) {
-      this.active = false;
-    }
-
-    if (finalPositionY > this.position.y) this.position.y += this.vel;
-    if (finalPositionX && finalPositionX > this.position.x) this.position.x += this.vel;
-
-    if (cb) cb();
-  }
-
   draw(c) {
-    if (this.isLoaded) c.drawImage(
-      this.image,
-      this.position.x - this.width / 2,
-      this.position.y - this.height / 2,
-      this.width,
-      this.height,
-    );
+    if (this.isLoaded)
+      c.drawImage(
+        this.image,
+        this.position.x - this.width / 2,
+        this.position.y - this.height / 2,
+        this.width,
+        this.height,
+      );
   }
 }
 
 export class Shot extends Sprite {
-  constructor({ width, height, duration, color, damage, position, finalCordinates, finalSizes, vel, spaceshipData }) {
-    super({width, height, position, finalCordinates});
+  constructor({
+    width,
+    height,
+    duration,
+    color,
+    damage,
+    position,
+    finalCordinates,
+    finalSizes,
+    vel,
+    spaceshipData,
+  }) {
+    super({ width, height, position, finalCordinates });
     this.duration = duration;
     this.color = color;
     this.damage = damage;
@@ -122,26 +134,39 @@ export class Shot extends Sprite {
   draw(c) {
     c.fillStyle = this.color;
     c.beginPath();
-    c.arc(this.position.x - this.width / 2, this.position.y - this.height / 2, this.width, 0, 2 * Math.PI);
+    c.arc(
+      this.position.x - this.width / 2,
+      this.position.y - this.height / 2,
+      this.width,
+      0,
+      2 * Math.PI,
+    );
     c.fill();
   }
 
   ignite(c) {
     this.active = true;
     this.position = {
-      x: this.spaceshipData.position.x + this.spaceshipData.width / 2 - this.width / 2,
+      x:
+        this.spaceshipData.position.x +
+        this.spaceshipData.width / 2 -
+        this.width / 2,
       y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
     };
 
-    if (this.duration) this.timeout = setTimeout(() => {
-      this.active = false;
-    }, this.duration);
+    if (this.duration)
+      this.timeout = setTimeout(() => {
+        this.active = false;
+      }, this.duration);
 
     // if (this.finalCordinates) this.moveUntilFinalCordinates();
     // if (this.finalSizes) this.expandUntilFinalSize();
   }
 
-  moveUntilFinalCordinates(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y) {
+  moveUntilFinalCordinates(
+    finalPositionX = this.finalCordinates.x,
+    finalPositionY = this.finalCordinates.y,
+  ) {
     if (this.intervalMove) clearInterval(this.intervalMove);
 
     this.intervalMove = setInterval(() => {
@@ -150,23 +175,25 @@ export class Shot extends Sprite {
         return;
       }
 
-      if (
-        finalPositionY >= this.position.y
-      ) {
+      if (finalPositionY >= this.position.y) {
         this.active = false;
         clearInterval(this.intervalMove);
       }
 
       if (finalPositionY > this.position.y) this.position.y += this.vel;
-      if (finalPositionX && finalPositionX > this.position.x) this.position.x += this.vel;
+      if (finalPositionX && finalPositionX > this.position.x)
+        this.position.x += this.vel;
       if (finalPositionY < this.position.y) this.position.y -= this.vel;
-      if (finalPositionX && finalPositionX < this.position.x) this.position.x -= this.vel;
-
+      if (finalPositionX && finalPositionX < this.position.x)
+        this.position.x -= this.vel;
     }, CONST.defaultInterval);
-
   }
 
-  expandUntilFinalSize(c, finalWidth = this.finalSizes.width, finalHeight = this.finalSizes.height) {
+  expandUntilFinalSize(
+    c,
+    finalWidth = this.finalSizes.width,
+    finalHeight = this.finalSizes.height,
+  ) {
     if (this.intervalExpand) clearInterval(this.intervalExpand);
 
     this.intervalExpand = setInterval(() => {
@@ -177,7 +204,6 @@ export class Shot extends Sprite {
 
       this.draw(c);
     }, CONST.velSizingAnimation);
-
   }
 
   destroyIntervals() {
@@ -189,7 +215,15 @@ export class Shot extends Sprite {
 }
 
 export class SpaceShipSprite extends Sprite {
-  constructor({ damage, position, width, height, imageSrc, shotType = "default", maxPositions }) {
+  constructor({
+    damage,
+    position,
+    width,
+    height,
+    imageSrc,
+    shotType = 'default',
+    maxPositions,
+  }) {
     super({
       position,
       width,
@@ -205,9 +239,16 @@ export class SpaceShipSprite extends Sprite {
   }
 
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
-    if (this.position.x + right + this.width - (this.width / 3) <= this.maxPositions.x) this.position.x += right;
-    if (this.position.x - left >= 0 - (this.width / 3)) this.position.x -= left;
-    if (this.position.y + bottom + (this.height / 2) <= this.maxPositions.y) this.position.y += bottom;
+    if (
+      this.position.x + right + this.width - this.width / 3 <=
+      this.maxPositions.x
+    ) {
+      this.position.x += right;
+    }
+
+    if (this.position.x - left >= 0 - this.width / 3) this.position.x -= left;
+    if (this.position.y + bottom + this.height / 2 <= this.maxPositions.y)
+      this.position.y += bottom;
     if (this.position.y - top >= 0 - this.height / 2) this.position.y -= top;
 
     if (this.isLoaded) {
