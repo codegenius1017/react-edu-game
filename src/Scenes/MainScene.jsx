@@ -66,12 +66,13 @@ export const MainScene = ({}) => {
         height: asteroid.height / 1.5,
         vel: asteroid.vel / 2,
       };
+      const parentXPosition = asteroid.position.x;
 
       _asteroids.push(
         copyAsteroid({
           ...infoAsteroid,
           finalCordinates: {
-            x: asteroid.position.x - asteroid.width / 2,
+            x: parentXPosition - asteroid.width / 2,
             y: asteroid.finalCordinates.y,
           },
         }),
@@ -80,7 +81,7 @@ export const MainScene = ({}) => {
         copyAsteroid({
           ...infoAsteroid,
           finalCordinates: {
-            x: asteroid.position.x + asteroid.width / 2,
+            x: parentXPosition + asteroid.width / 2,
             y: asteroid.finalCordinates.y,
           },
         }),
@@ -96,7 +97,6 @@ export const MainScene = ({}) => {
       let indexAsteroid = 0;
       for (const asteroid of asteroids) {
         if (calcCollapse(asteroid, shot) && shot.active) {
-          shot.active = false;
           asteroid.active = false;
           asteroids.splice(indexAsteroid, 1);
           asteroid.health -= shot.damage;
@@ -123,10 +123,10 @@ export const MainScene = ({}) => {
   );
 
   const moveEverything = useCallback(
-    (shots, asteroids) => {
-      for (const [indexShot, shot] of shots.entries()) {
+    (asteroids) => {
+      for (const [indexShot, shot] of shots.current.entries()) {
         if (!shot.active) {
-          shots.splice(indexShot, 1);
+          shots.current.splice(indexShot, 1);
           continue;
         }
         if (shot.move)
@@ -137,8 +137,9 @@ export const MainScene = ({}) => {
               const returnedShot = calcShotOnAsteroidRange(shot, asteroids);
 
               if(returnedShot){
-                shots[indexShot] = returnedShot;
-                shots.current = shots;
+                shots.current[indexShot].active = false;
+                shots.current.splice(indexShot, 1);
+                // shots.current = shots;
               }
             },
           );
@@ -177,9 +178,11 @@ export const MainScene = ({}) => {
 
   const handleKeyDown = useCallback(
     (e, canvasCtx) => {
-      if (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) {
+      let count = 1
+      if ((e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) && count == 1) {
         spaceShip.shoot(canvasCtx);
-        shots.current = spaceShip.shots.map((shot) => shot);
+        shots.current = spaceShip.shots;
+        count++;
       }
     },
     [spaceShip],
@@ -239,14 +242,14 @@ export const MainScene = ({}) => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
     const interval = setInterval(() => {
-      moveEverything(spaceShip.shots, asteroids);
+      moveEverything(asteroids);
       drawEverything(canvasCtx, asteroids);
     }, CONST.defaultInterval);
 
     return () => {
       clearInterval(interval);
     };
-  }, [asteroids, canvasCtx, drawEverything, moveEverything, spaceShip.shots]);
+  }, [asteroids, canvasCtx, drawEverything, moveEverything]);
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
@@ -261,7 +264,7 @@ export const MainScene = ({}) => {
     const interval = setInterval(() => {
       const indexAsteroid = _asteroids.length;
       const asteroid = createAsteroid({
-        cbFalling: () => calcShotOnAsteroidRange(shots, indexAsteroid),
+        cbFalling: () => calcShotOnAsteroidRange(shots.current, indexAsteroid),
         cbEndFall: () => {
           const asteroid = asteroids[indexAsteroid];
           asteroid.active = false;
