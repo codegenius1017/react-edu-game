@@ -31,14 +31,19 @@ export class Sprite {
     finalPositionX = this.finalCordinates.x,
     finalPositionY = this.finalCordinates.y,
     cb,
+    finalCb,
   ) {
     const goingDown = this.initialPosition.y < this.finalCordinates.y;
     const goingRigth = this.initialPosition.x < this.finalCordinates.x;
 
+    const xDistanceMove = this.vel * CONST.velDistancingMitosedAsteroids;
+
     if (goingDown && finalPositionY <= this.position.y) {
       this.active = false;
+      if (finalCb) finalCb();
     } else if (!goingDown && finalPositionY >= this.position.y) {
       this.active = false;
+      if (finalCb) finalCb();
     }
 
     if (goingDown && finalPositionY > this.position.y) {
@@ -47,13 +52,14 @@ export class Sprite {
       this.position.y -= this.vel;
 
     if (goingRigth && finalPositionX && finalPositionX > this.position.x) {
-      this.position.x += this.vel * CONST.velDistancingMitosedAsteroids;
+      this.position.x += xDistanceMove;
     } else if (
       !goingRigth &&
       finalPositionX &&
       finalPositionX < this.position.x
-    )
-      this.position.x -= this.vel * CONST.velDistancingMitosedAsteroids;
+    ) {
+      this.position.x -= xDistanceMove;
+    }
 
     if (cb) cb();
   }
@@ -64,7 +70,7 @@ export class AsteroidSprite extends Sprite {
     super(props);
 
     this.cbFalling = props.cbFalling;
-    this.cbFalling = props.cbEndFall;
+    this.cbEndFall = props.cbEndFall;
     this.finalCordinates = props.finalCordinates;
     this.vel = props.vel;
     this.damage = props.damage;

@@ -12,11 +12,13 @@ import { copyAsteroid, createAsteroid } from '../gameAssets/Objects/Asteroid';
 import { createSpaceShip } from '../gameAssets/Objects/SpaceShip';
 import { CONST, calcCollapse } from '../gameAssets/Objects/Global';
 import style from './MainScene.module.scss';
+import { cloneDeep } from 'lodash';
 
-export const MainScene = ({}) => {
+export const MainScene = () => {
   const { gameState, gameDispatch } = useContext(GameContext);
   const gameScreen = useRef(null);
   const shots = useRef([]);
+  const damaged = useRef(false);
   const gameScreenWidth = window.innerWidth;
   const gameScreenHeight = window.innerHeight;
   const canvasCtx = useMemo(
@@ -45,7 +47,6 @@ export const MainScene = ({}) => {
         height={gameScreenHeight}
         width={gameScreenWidth}
         canvasStyle={{
-          boxShadow: 'inset 0 0 10vw 10vh #000',
           backgroundColor: '#000000a6',
           backgroundImage:
             "url('./space-warrior/images/backgrounds/space1.gif')",
@@ -70,7 +71,7 @@ export const MainScene = ({}) => {
 
       _asteroids.push(
         copyAsteroid({
-          ...infoAsteroid,
+          ...cloneDeep(infoAsteroid),
           finalCordinates: {
             x: parentXPosition - asteroid.width / 2,
             y: asteroid.finalCordinates.y,
@@ -79,7 +80,7 @@ export const MainScene = ({}) => {
       );
       _asteroids.push(
         copyAsteroid({
-          ...infoAsteroid,
+          ...cloneDeep(infoAsteroid),
           finalCordinates: {
             x: parentXPosition + asteroid.width / 2,
             y: asteroid.finalCordinates.y,
@@ -130,19 +131,14 @@ export const MainScene = ({}) => {
           continue;
         }
         if (shot.move)
-          shot.move(
-            undefined,
-            undefined,
-            () => {
-              const returnedShot = calcShotOnAsteroidRange(shot, asteroids);
+          shot.move(undefined, undefined, () => {
+            const returnedShot = calcShotOnAsteroidRange(shot, asteroids);
 
-              if(returnedShot){
-                shots.current[indexShot].active = false;
-                shots.current.splice(indexShot, 1);
-                // shots.current = shots;
-              }
-            },
-          );
+            if (returnedShot) {
+              shots.current[indexShot].active = false;
+              shots.current.splice(indexShot, 1);
+            }
+          });
       }
 
       for (const [indexAster, asteroid] of asteroids.entries()) {
@@ -150,7 +146,13 @@ export const MainScene = ({}) => {
           asteroids.splice(indexAster, 1);
           continue;
         }
-        if (asteroid.move) asteroid.move();
+        if (asteroid.move)
+          asteroid.move(undefined, undefined, undefined, () => {
+            const asteroid = asteroids[indexAster];
+            asteroids.splice(indexAster, 1);
+            setAsteroids(asteroids);
+            gameDispatch({ type: 'LOSE_LIFE', payload: asteroid.damage });
+          });
       }
     },
     [calcShotOnAsteroidRange],
@@ -178,8 +180,11 @@ export const MainScene = ({}) => {
 
   const handleKeyDown = useCallback(
     (e, canvasCtx) => {
-      let count = 1
-      if ((e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) && count == 1) {
+      let count = 1;
+      if (
+        (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) &&
+        count == 1
+      ) {
         spaceShip.shoot(canvasCtx);
         shots.current = spaceShip.shots;
         count++;
@@ -253,8 +258,16 @@ export const MainScene = ({}) => {
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
-    window.addEventListener('keydown', (e) => handleKeyDown(e, canvasCtx));
-    window.addEventListener('keypress', (e) => handleKeyPress(e, canvasCtx));
+    const handleDown = (e) => handleKeyDown(e, canvasCtx);
+    const handlePress = (e) => handleKeyPress(e, canvasCtx);
+
+    window.addEventListener('keydown', handleDown);
+    window.addEventListener('keypress', handlePress);
+
+    return () => {
+      window.removeEventListener('keydown', handleDown);
+      window.removeEventListener('keypress', handlePress);
+    };
   }, [gameScreen, handleKeyPress, handleKeyDown]);
 
   useEffect(() => {
@@ -262,15 +275,7 @@ export const MainScene = ({}) => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
     const interval = setInterval(() => {
-      const indexAsteroid = _asteroids.length;
       const asteroid = createAsteroid({
-        cbFalling: () => calcShotOnAsteroidRange(shots.current, indexAsteroid),
-        cbEndFall: () => {
-          const asteroid = asteroids[indexAsteroid];
-          asteroid.active = false;
-          asteroids.splice(indexAsteroid, 1);
-          dispatchEvent('LOSE_LIFE', asteroid.damage);
-        },
         canvasCtx,
         gameScreenWidth,
         gameScreenHeight,
@@ -293,7 +298,15 @@ export const MainScene = ({}) => {
     calcShotOnAsteroidRange,
   ]);
 
-  useEffect(() => {}, [gameState.health]);
+  useEffect(() => {
+    damaged.current = true;
+
+    const removeDamageBorder = setTimeout(() => {
+      damaged.current = false;
+    }, 2000);
+
+    return () => clearTimeout(removeDamageBorder);
+  }, [gameState.health]);
 
   return (
     <div id="main-screen" style={{ overflow: 'hidden' }}>
@@ -303,6 +316,23 @@ export const MainScene = ({}) => {
         style={{ minHeight: 'fit-content', minWidth: 'fit-content' }}
       >
         {gameCanvas}
+        <div
+          style={{
+            transition: 'box-shadow .5s ease',
+            boxShadow: damaged.current
+              ? 'inset 0 0 5vw 5vh #ff8888'
+              : 'inset 0 0 5vw 5vh #000',
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            fontSize: 0,
+            zIndex: 10,
+            background: '#00000001',
+            top: 0,
+          }}
+        >
+          .
+        </div>
       </div>
     </div>
   );

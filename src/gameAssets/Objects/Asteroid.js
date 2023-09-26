@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { AsteroidSprite } from './Sprites';
 
 const asteroidsTypes = [
@@ -52,9 +53,7 @@ export const createAsteroid = ({
 };
 
 export const copyAsteroid = (asteroid) => {
-  const Asteroid = new AsteroidSprite({
-    ...asteroid,
-  });
+  const Asteroid = new AsteroidSprite(cloneDeep(asteroid));
 
   return Asteroid;
 };
