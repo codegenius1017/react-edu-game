@@ -49,7 +49,7 @@ export const MainScene = () => {
         canvasStyle={{
           backgroundColor: '#000000a6',
           backgroundImage:
-            "url('./space-warrior/images/backgrounds/space1.gif')",
+            "url('./images/backgrounds/space1.gif')",
           border: '1px solid black',
         }}
       />
@@ -180,14 +180,9 @@ export const MainScene = () => {
 
   const handleKeyDown = useCallback(
     (e, canvasCtx) => {
-      let count = 1;
-      if (
-        (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) &&
-        count == 1
-      ) {
+      if (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) {
         spaceShip.shoot(canvasCtx);
         shots.current = spaceShip.shots;
-        count++;
       }
     },
     [spaceShip],
@@ -317,6 +312,7 @@ export const MainScene = () => {
       >
         {gameCanvas}
         <div
+          className={`${style['glass']}`}
           style={{
             transition: 'box-shadow .5s ease',
             boxShadow: damaged.current

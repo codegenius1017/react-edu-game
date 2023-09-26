@@ -3,21 +3,21 @@ import { AsteroidSprite } from './Sprites';
 
 const asteroidsTypes = [
   {
-    imageSrc: './space-warrior/images/asteroids/asteroi-1.png',
+    imageSrc: './images/asteroids/asteroi-1.png',
     vel: 1,
     damage: 1,
     size: 60,
     health: 2,
   },
   {
-    imageSrc: './space-warrior/images/asteroids/asteroid-2.png',
+    imageSrc: './images/asteroids/asteroid-2.png',
     vel: 0.5,
     damage: 2,
     size: 100,
     health: 4,
   },
   {
-    imageSrc: './space-warrior/images/asteroids/meteor-1.png',
+    imageSrc: './images/asteroids/meteor-1.png',
     vel: 1.7,
     damage: 0.5,
     size: 50,
