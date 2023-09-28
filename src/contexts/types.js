@@ -3,3 +3,4 @@ export const CHANGE_SPACESHIP = "CHANGE_SPACESHIP";
 export const LEVEL_UP = "LEVEL_UP";
 export const RESTART = "RESTART";
 export const LOSE_LIFE = "LOSE_LIFE";
+export const PAUSE = "PAUSE";

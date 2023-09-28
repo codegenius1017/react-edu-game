@@ -6,11 +6,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import Canvas from '../Components/Canvas';
-import { GameContext } from '../contexts/GameContext';
-import { copyAsteroid, createAsteroid } from '../gameAssets/Objects/Asteroid';
-import { createSpaceShip } from '../gameAssets/Objects/SpaceShip';
-import { CONST, calcCollapse } from '../gameAssets/Objects/Global';
+import Canvas from '../../Components/Canvas';
+import { GameContext } from '../../contexts/GameContext';
+import { copyAsteroid, createAsteroid } from '../../gameAssets/Objects/Asteroid';
+import { createSpaceShip } from '../../gameAssets/Objects/SpaceShip';
+import { CONST, calcCollapse } from '../../gameAssets/Objects/Global';
 import style from './MainScene.module.scss';
 import { cloneDeep } from 'lodash';
 
@@ -48,8 +48,7 @@ export const MainScene = () => {
         width={gameScreenWidth}
         canvasStyle={{
           backgroundColor: '#000000a6',
-          backgroundImage:
-            "url('./images/backgrounds/space1.gif')",
+          backgroundImage: `url('${process.env.PUBLIC_URL}/images/backgrounds/space1.gif')`,
           border: '1px solid black',
         }}
       />
@@ -151,11 +150,11 @@ export const MainScene = () => {
             const asteroid = asteroids[indexAster];
             asteroids.splice(indexAster, 1);
             setAsteroids(asteroids);
-            gameDispatch({ type: 'LOSE_LIFE', payload: asteroid.damage });
+            gameDispatch({ type: 'LOSE_LIFE', payload: asteroid.health });
           });
       }
     },
-    [calcShotOnAsteroidRange],
+    [calcShotOnAsteroidRange, gameDispatch],
   );
 
   const drawEverything = useCallback(
@@ -180,16 +179,21 @@ export const MainScene = () => {
 
   const handleKeyDown = useCallback(
     (e, canvasCtx) => {
+      if (gameState.paused) return;
       if (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) {
         spaceShip.shoot(canvasCtx);
         shots.current = spaceShip.shots;
-      }
+      } else
+        if (e.Code === "p" || e.key === "p") {
+          gameDispatch({ type: "PAUSE" });
+        }
     },
-    [spaceShip],
+    [gameDispatch, gameState.paused, spaceShip],
   );
 
   const handleKeyPress = useCallback(
     (e, canvasCtx) => {
+      if (gameState.paused) return;
       if (e.key === 'w' || e.key === 'ArrowUp') {
         const upInterval = setInterval(() => {
           spaceShip.move({ top: 7, canvasCtx });
@@ -235,13 +239,14 @@ export const MainScene = () => {
         });
       }
     },
-    [spaceShip],
+    [gameState.paused, spaceShip],
   );
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
     const interval = setInterval(() => {
+      if (gameState.paused) return;
       moveEverything(asteroids);
       drawEverything(canvasCtx, asteroids);
     }, CONST.defaultInterval);
@@ -249,7 +254,7 @@ export const MainScene = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [asteroids, canvasCtx, drawEverything, moveEverything]);
+  }, [asteroids, canvasCtx, drawEverything, gameState.paused, moveEverything]);
 
   useEffect(() => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
@@ -270,6 +275,7 @@ export const MainScene = () => {
     const canvasCtx = gameScreen?.current?.getContext('2d');
 
     const interval = setInterval(() => {
+      if (gameState.paused) return;
       const asteroid = createAsteroid({
         canvasCtx,
         gameScreenWidth,
@@ -280,25 +286,19 @@ export const MainScene = () => {
       if (_asteroids.length > 10) _asteroids.shift();
 
       setAsteroids(_asteroids);
-    }, 5000);
+    }, 2500);
 
     return () => {
       clearInterval(interval);
     };
-  }, [
-    gameScreen,
-    gameScreenWidth,
-    gameScreenHeight,
-    asteroids,
-    calcShotOnAsteroidRange,
-  ]);
+  }, [gameScreen, gameScreenWidth, gameScreenHeight, asteroids, calcShotOnAsteroidRange, gameState.paused]);
 
   useEffect(() => {
     damaged.current = true;
 
     const removeDamageBorder = setTimeout(() => {
       damaged.current = false;
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(removeDamageBorder);
   }, [gameState.health]);
@@ -306,6 +306,7 @@ export const MainScene = () => {
   return (
     <div id="main-screen" style={{ overflow: 'hidden' }}>
       <div className={`${style['points-counter']}`}>SCORE: {points}</div>
+      <div className={`${style['life-counter']}`}>HEALTH: {gameState.health}</div>
       <div
         className="game-canvas-container"
         style={{ minHeight: 'fit-content', minWidth: 'fit-content' }}
@@ -318,16 +319,11 @@ export const MainScene = () => {
             boxShadow: damaged.current
               ? 'inset 0 0 5vw 5vh #ff8888'
               : 'inset 0 0 5vw 5vh #000',
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            fontSize: 0,
-            zIndex: 10,
-            background: '#00000001',
-            top: 0,
+            fontSize: gameState.paused ? "5rem" : 0,
+            background: gameState.paused ? "#000000a6" : "none"
           }}
         >
-          .
+          {gameState.paused ? "PAUSED" : ""}
         </div>
       </div>
     </div>

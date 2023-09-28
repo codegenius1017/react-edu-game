@@ -40,6 +40,10 @@ export const gameReducer = (state, action) => {
       return {...state, level};
     }
 
+    case types.PAUSE: {
+      return {...state, paused: !state.paused};
+    }
+
     default: {
       console.log({...action});
     }
