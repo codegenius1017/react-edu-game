@@ -1,0 +1,22 @@
+.main{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.space-ship-image{
+  width: 50vw;
+  min-width: 300px;
+}
+
+.space-ship-title, .space-ship-description{
+  width: 90%;
+}
+
+.space-ship-title{
+  font-size: 2.15rem;
+}
+
+.space-ship-description{
+  font-size: 1.15rem;
+}

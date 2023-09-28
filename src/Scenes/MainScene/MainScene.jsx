@@ -36,6 +36,7 @@ export const MainScene = () => {
       },
       canvasWidth: gameScreenWidth,
       canvasHeight: gameScreenHeight,
+      id: gameState.spaceshipId
     }),
   );
 

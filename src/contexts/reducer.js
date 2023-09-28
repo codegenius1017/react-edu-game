@@ -2,15 +2,15 @@
 import * as types from './types.js';
 
 export const gameReducer = (state, action) => {
-  switch(action.type){
+  switch (action.type) {
     case types.CHANGE_SPACESHIP: {
-      const {spaceshipId} = action.payload;
+      const { spaceshipId } = action.payload;
 
-      return {...state, spaceshipId};
+      return { ...state, spaceshipId };
     }
 
     case types.GAME_OVER: {
-      return {...state, gameOver: true};
+      return { ...state, gameOver: true };
     }
 
     case types.RESTART: {
@@ -37,15 +37,15 @@ export const gameReducer = (state, action) => {
       let level = state;
       level++;
 
-      return {...state, level};
+      return { ...state, level };
     }
 
     case types.PAUSE: {
-      return {...state, paused: !state.paused};
+      return { ...state, paused: !state.paused };
     }
 
     default: {
-      console.log({...action});
+      console.log({ ...action });
     }
   }
 }
