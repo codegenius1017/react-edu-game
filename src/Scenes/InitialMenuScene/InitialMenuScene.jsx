@@ -1,20 +1,30 @@
 import style from './InitialMenuScene.module.scss';
 import { SpaceShipSelector } from "../../Components/SpaceShipSelector/SpaceShipSelector";
-import { useState } from 'react';
 import { MainScene } from '../MainScene/MainScene';
+import { GameContext } from '../../contexts/GameContext';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 export const InitialMenuScene = () => {
-  const [iniciate, setIniciate] = useState(true);
+  const { gameState, gameDispatch } = useContext(GameContext);
+  const [renderMenu, setRenderMenu] = useState(gameState.initial);
 
   const handleClick = () => {
-    setIniciate(false);
+    gameDispatch({ type: "ON" });
   }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setRenderMenu(gameState.initial);
+    }, gameState.initial ? 0 : 2000);
+
+    return () => clearTimeout(timeout);
+  }, [gameState.initial]);
 
   return (
     <div className={`${style['container']}`}>
       {
-        iniciate ?
-          <>
+        renderMenu ?
+          <div className={`${style['menu-screen']}`} style={{ top: gameState.initial ? 0 : "-100vh" }}>
             <h1 className={`${style['title']}`}>SPACE WARRIOR</h1>
             <SpaceShipSelector />
             <div style={{ width: "100%", textAlign: "center", paddingBottom: 16 }}>
@@ -25,9 +35,10 @@ export const InitialMenuScene = () => {
                 &copy; copyrigths -- feito por Priscila T. 2023
               </div>
             </footer>
-          </>
-          : <MainScene />
+          </div>
+          : undefined
       }
+      <MainScene />
     </div>
   )
 }

@@ -39,6 +39,17 @@ export const MainScene = () => {
     }), [gameState.spaceShipId]
   );
 
+  useEffect(() => {
+    spaceShip.current = createSpaceShip({
+      props: {
+        size: 150,
+      },
+      canvasWidth: gameScreenWidth,
+      canvasHeight: gameScreenHeight,
+      id: gameState.spaceShipId
+    });
+  }, [gameScreenHeight, gameScreenWidth, gameState.spaceShipId])
+
   const gameCanvas = useMemo(
     () => (
       <Canvas
@@ -304,7 +315,7 @@ export const MainScene = () => {
   }, [gameState.health]);
 
   return (
-    <div id="main-screen" style={{ overflow: 'hidden' }}>
+    <div id="game-main-scene-screen" style={{ overflow: 'hidden' }}>
       <div className={`${style['points-counter']}`}>SCORE: {points}</div>
       <div className={`${style['life-counter']}`}>HEALTH: {gameState.health}</div>
       <div
@@ -323,7 +334,14 @@ export const MainScene = () => {
             background: gameState.paused ? "#000000a6" : "none"
           }}
         >
-          {gameState.paused ? "PAUSED" : ""}
+          {
+            gameState.paused && !gameState.initial ?
+              <div className={`${style['pause-info']}`}>
+                PAUSED
+                <button className={`${style['menu-button']}`} onClick={() => gameDispatch({ type: "RESTART" })}>Menu</button>
+              </div>
+              : undefined
+          }
         </div>
       </div>
     </div>

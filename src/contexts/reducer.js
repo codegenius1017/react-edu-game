@@ -9,7 +9,7 @@ export const gameReducer = (state, action) => {
 
       if (spaceShipId > state.spaceShipId && !spaceships[spaceShipId]) {
         spaceShipId = 0
-      } else if(!spaceships[spaceShipId]) spaceShipId = spaceships.length - 1
+      } else if (!spaceships[spaceShipId]) spaceShipId = spaceships.length - 1
 
       return { ...state, spaceShipId };
     }
@@ -24,7 +24,9 @@ export const gameReducer = (state, action) => {
         points: 0,
         health: 100,
         level: 0,
-        gameOver: false
+        gameOver: false,
+        initial: true,
+        paused: true,
       }
     }
 
@@ -47,6 +49,14 @@ export const gameReducer = (state, action) => {
 
     case types.PAUSE: {
       return { ...state, paused: !state.paused };
+    }
+
+    case types.INITIAL: {
+      return { ...state, initial: true, paused: true }
+    }
+
+    case types.ON: {
+      return { ...state, initial: false, paused: false }
     }
 
     default: {

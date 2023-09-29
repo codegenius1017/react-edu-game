@@ -5,5 +5,6 @@ export const initialData = {
   gameOver: false,
   spaceShipId: 0,
   fps: 60,
-  paused: false,
+  paused: true,
+  initial: true,
 }

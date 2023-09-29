@@ -1,5 +1,6 @@
 .container{
   max-width: 100%;
+  width: 50%;
 }
 
 .main {
@@ -7,6 +8,14 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
+}
+
+.space-ship-image-container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 400px;
+  align-items: center;
 }
 
 .space-ship-image {

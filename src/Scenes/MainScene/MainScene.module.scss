@@ -21,9 +21,21 @@
   font-size: 0px;
   z-index  : 10;
   top      : 0px;
-  display: flex;
+}
+
+.pause-info {
+  width          : 100%;
+  height         : 100%;
+  display        : flex;
+  flex-direction : column;
   justify-content: center;
-  align-items: center;
-  color: white;
-  text-transform: uppercase;
+  align-items    : center;
+  color          : #15f419;
+  text-transform : uppercase;
+  gap            : 12px;
+}
+
+.menu-button {
+  padding: 8px;
+  border : none;
 }
