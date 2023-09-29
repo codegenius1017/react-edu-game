@@ -17,9 +17,9 @@ export const SpaceShipSelector = () => {
 
   return (
     <div className={`${style.main}`}>
-      <Arrow onClick={handleClick} direction={"left"}/>
+      <Arrow onClick={handleClick} direction={"left"} style={{height: 60 }}/>
       <SpaceShipVisualizer spaceShipId={gameState.spaceShipId} />
-      <Arrow onClick={handleClick} direction={"right"}/>
+      <Arrow onClick={handleClick} direction={"right"} style={{height: 60 }}/>
     </div>
   )
 };
