@@ -28,16 +28,15 @@ export const MainScene = () => {
 
   const [asteroids, setAsteroids] = useState([]);
   const [points, setPoints] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [spaceShip, setSpaceShip] = useState(
+  const spaceShip = useRef(
     createSpaceShip({
       props: {
         size: 150,
       },
       canvasWidth: gameScreenWidth,
       canvasHeight: gameScreenHeight,
-      id: gameState.spaceshipId
-    }),
+      id: gameState.spaceShipId
+    }), [gameState.spaceShipId]
   );
 
   const gameCanvas = useMemo(
@@ -173,23 +172,23 @@ export const MainScene = () => {
         if (shot.active) shot.draw(canvasCtx);
       }
 
-      spaceShip.draw(canvasCtx);
+      spaceShip.current.draw(canvasCtx);
     },
-    [fillCanvas, gameState.paused, spaceShip],
+    [fillCanvas, gameState.paused, spaceShip.current],
   );
 
   const handleKeyDown = useCallback(
     (e, canvasCtx) => {
       if (gameState.paused) return;
       if (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) {
-        spaceShip.shoot(canvasCtx);
-        shots.current = spaceShip.shots;
+        spaceShip.current.shoot(canvasCtx);
+        shots.current = spaceShip.current.shots;
       } else
         if (e.Code === "p" || e.key === "p") {
           gameDispatch({ type: "PAUSE" });
         }
     },
-    [gameDispatch, gameState.paused, spaceShip],
+    [gameDispatch, gameState.paused, spaceShip.current],
   );
 
   const handleKeyPress = useCallback(
@@ -197,7 +196,7 @@ export const MainScene = () => {
       if (gameState.paused) return;
       if (e.key === 'w' || e.key === 'ArrowUp') {
         const upInterval = setInterval(() => {
-          spaceShip.move({ top: 7, canvasCtx });
+          spaceShip.current.move({ top: 7, canvasCtx });
         }, 25);
 
         window.addEventListener('keyup', (upKeyEvent) => {
@@ -208,7 +207,7 @@ export const MainScene = () => {
       }
       if (e.key === 's' || e.key === 'ArrowDown') {
         const downInterval = setInterval(() => {
-          spaceShip.move({ bottom: 7, canvasCtx });
+          spaceShip.current.move({ bottom: 7, canvasCtx });
         }, 25);
 
         window.addEventListener('keyup', (upKeyEvent) => {
@@ -219,7 +218,7 @@ export const MainScene = () => {
       }
       if (e.key === 'd' || e.key === 'ArrowRight') {
         const rightInterval = setInterval(() => {
-          spaceShip.move({ right: 7, canvasCtx });
+          spaceShip.current.move({ right: 7, canvasCtx });
         }, 25);
 
         window.addEventListener('keyup', (upKeyEvent) => {
@@ -230,7 +229,7 @@ export const MainScene = () => {
       }
       if (e.key === 'a' || e.key === 'ArrowLeft') {
         const letfInterval = setInterval(() => {
-          spaceShip.move({ left: 7, canvasCtx });
+          spaceShip.current.move({ left: 7, canvasCtx });
         }, 25);
 
         window.addEventListener('keyup', (upKeyEvent) => {
@@ -240,7 +239,7 @@ export const MainScene = () => {
         });
       }
     },
-    [gameState.paused, spaceShip],
+    [gameState.paused, spaceShip.current],
   );
 
   useEffect(() => {

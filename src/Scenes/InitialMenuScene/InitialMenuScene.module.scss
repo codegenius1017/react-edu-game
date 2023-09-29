@@ -4,6 +4,7 @@
   justify-content : center;
   align-items     : center;
   flex-wrap       : wrap;
+  height: 100%;
 }
 
 .title {
@@ -15,10 +16,15 @@
 .start-button {
   padding: 8px;
   border: 3px solid #a611ff;
-  background-color: #00000000;
+  // background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(109,87,120,1) 100%);
   transition: all .5s ease;
+  color: #222;
+  border-radius: 8px;
+  font-size: 1.45rem;
 }
 
 .start-button:hover{
-  background: url('../../gameAssets/images/backgrounds/space1.gif');
+  // background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(53,4,77,1) 17%, rgba(108,9,121,1) 35%, rgba(66,87,173,1) 60%, rgba(149,0,255,1) 100%);
+  transform: scale(1.1);
+  box-shadow: 2px 2px 8px #000;
 }
