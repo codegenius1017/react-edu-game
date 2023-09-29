@@ -123,7 +123,7 @@ export class Shot extends Sprite {
     this.finalSizes = finalSizes;
     this.spaceshipData = spaceshipData;
     this.vel = vel;
-    this.active = false;
+    this.active = true;
   }
 
   draw(c) {
@@ -140,19 +140,19 @@ export class Shot extends Sprite {
   }
 
   ignite(c) {
-    this.active = true;
-    this.position = {
-      x:
-        this.spaceshipData.position.x +
-        this.spaceshipData.width / 2 -
-        this.width / 2,
-      y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
-    };
+    // this.active = true;
+    // this.position = {
+    //   x:
+    //     this.spaceshipData.position.x +
+    //     this.spaceshipData.width / 2 -
+    //     this.width / 2,
+    //   y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
+    // };
 
-    if (this.duration)
-      this.timeout = setTimeout(() => {
-        this.active = false;
-      }, this.duration);
+    // if (this.duration)
+    //   this.timeout = setTimeout(() => {
+    //     this.active = false;
+    //   }, this.duration);
 
     // if (this.finalCordinates) this.moveUntilFinalCordinates();
     // if (this.finalSizes) this.expandUntilFinalSize();
@@ -255,7 +255,7 @@ export class SpaceShipSprite extends Sprite {
     const shots = ShotTypes[type || this.shotType].getSprite(this);
 
     shots.forEach((shot) => {
-      shot.ignite(c);
+      // shot.ignite(c);
       shot.move();
 
       this.shots.push(shot);
