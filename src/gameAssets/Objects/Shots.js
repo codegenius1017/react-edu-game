@@ -49,6 +49,25 @@ export const ShotTypes = {
       return shots;
     },
   },
+  bigShot: {
+    getSprite: (spaceshipData) => {
+      return [
+        new Shot({
+          width: 30,
+          height: 30,
+          color: "violet",
+          damage: 3,
+          vel: 2,
+          position: {
+            x: spaceshipData.position.x + 15 + spaceshipData.width / 2,
+            y: spaceshipData.position.y + spaceshipData.width / 2,
+          },
+          finalCordinates: { y: -50 },
+          spaceshipData,
+        }),
+      ];
+    }
+  },
   shotgunRandomized: {
     getSprite: (spaceshipData, sparklesNum, size = 10, margin = 10) => {
       const shots = [];

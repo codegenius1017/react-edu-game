@@ -5,38 +5,39 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import Canvas from '../../Components/Canvas';
-import { GameContext } from '../../contexts/GameContext';
-import { copyAsteroid, createAsteroid } from '../../gameAssets/Objects/Asteroid';
-import { createSpaceShip } from '../../gameAssets/Objects/SpaceShip';
-import { CONST, calcCollapse } from '../../gameAssets/Objects/Global';
-import style from './MainScene.module.scss';
-import { cloneDeep } from 'lodash';
+} from "react";
+import Canvas from "../../Components/Canvas";
+import { GameContext } from "../../contexts/GameContext";
+import {
+  copyAsteroid,
+  createAsteroid,
+} from "../../gameAssets/Objects/Asteroid";
+import { createSpaceShip } from "../../gameAssets/Objects/SpaceShip";
+import { CONST, calcCollapse } from "../../gameAssets/Objects/Global";
+import style from "./MainScene.module.scss";
+import { cloneDeep } from "lodash";
 
 export const MainScene = () => {
   const { gameState, gameDispatch } = useContext(GameContext);
+  const [points, setPoints] = useState(gameState.points);
+  const [asteroids, setAsteroids] = useState([]);
   const gameScreen = useRef(null);
-  const shots = useRef([]);
   const damaged = useRef(false);
-  const gameScreenWidth = window.innerWidth;
+  const shots = useRef([]);
   const gameScreenHeight = window.innerHeight;
+  const gameScreenWidth = window.innerWidth;
   const canvasCtx = useMemo(
-    () => gameScreen?.current?.getContext('2d'),
+    () => gameScreen?.current?.getContext("2d"),
     [gameScreen],
   );
 
-  const [asteroids, setAsteroids] = useState([]);
-  const [points, setPoints] = useState(0);
   const spaceShip = useRef(
     createSpaceShip({
-      props: {
-        size: 150,
-      },
       canvasWidth: gameScreenWidth,
       canvasHeight: gameScreenHeight,
-      id: gameState.spaceShipId
-    }), [gameState.spaceShipId]
+      id: gameState.spaceShipId,
+    }),
+    [gameState.spaceShipId],
   );
 
   useEffect(() => {
@@ -46,9 +47,13 @@ export const MainScene = () => {
       },
       canvasWidth: gameScreenWidth,
       canvasHeight: gameScreenHeight,
-      id: gameState.spaceShipId
+      id: gameState.spaceShipId,
     });
-  }, [gameScreenHeight, gameScreenWidth, gameState.spaceShipId])
+  }, [gameScreenHeight, gameScreenWidth, gameState.spaceShipId]);
+
+  useEffect(() => {
+    setPoints(0);
+  }, [gameState.initial]);
 
   const gameCanvas = useMemo(
     () => (
@@ -58,9 +63,9 @@ export const MainScene = () => {
         height={gameScreenHeight}
         width={gameScreenWidth}
         canvasStyle={{
-          backgroundColor: '#000000a6',
+          backgroundColor: "#000000a6",
           backgroundImage: `url('${process.env.PUBLIC_URL}/images/backgrounds/space1.gif')`,
-          border: '1px solid black',
+          border: "1px solid black",
         }}
       />
     ),
@@ -161,7 +166,7 @@ export const MainScene = () => {
             const asteroid = asteroids[indexAster];
             asteroids.splice(indexAster, 1);
             setAsteroids(asteroids);
-            gameDispatch({ type: 'LOSE_LIFE', payload: asteroid.health });
+            gameDispatch({ type: "LOSE_LIFE", payload: asteroid.health });
           });
       }
     },
@@ -185,76 +190,79 @@ export const MainScene = () => {
 
       spaceShip.current.draw(canvasCtx);
     },
-    [fillCanvas, gameState.paused, spaceShip.current],
+    [fillCanvas, gameState.paused],
   );
 
   const handleKeyDown = useCallback(
     (e, canvasCtx) => {
+      if (e.Code === "p" || e.key === "p") {
+        spaceShip.current.active = gameState.paused;
+        gameDispatch({ type: "PAUSE" });
+      }
+
       if (gameState.paused) return;
-      if (e.Code === 'Space' || e.key === ' ' || e.keyCode === 32) {
+
+      if (e.Code === "Space" || e.key === " " || e.keyCode === 32) {
         spaceShip.current.shoot(canvasCtx);
         shots.current = spaceShip.current.shots;
-      } else
-        if (e.Code === "p" || e.key === "p") {
-          gameDispatch({ type: "PAUSE" });
-        }
+      }
     },
-    [gameDispatch, gameState.paused, spaceShip.current],
+    [gameDispatch, gameState.paused],
   );
 
   const handleKeyPress = useCallback(
     (e, canvasCtx) => {
       if (gameState.paused) return;
-      if (e.key === 'w' || e.key === 'ArrowUp') {
+      if (e.key === "w" || e.key === "ArrowUp") {
         const upInterval = setInterval(() => {
-          spaceShip.current.move({ top: 7, canvasCtx });
+          spaceShip.current.move({ top: spaceShip.current.vel, canvasCtx });
         }, 25);
 
-        window.addEventListener('keyup', (upKeyEvent) => {
+        window.addEventListener("keyup", (upKeyEvent) => {
           if (upKeyEvent.key === e.key) {
             clearInterval(upInterval);
           }
         });
       }
-      if (e.key === 's' || e.key === 'ArrowDown') {
+      if (e.key === "s" || e.key === "ArrowDown") {
         const downInterval = setInterval(() => {
-          spaceShip.current.move({ bottom: 7, canvasCtx });
+          spaceShip.current.move({ bottom: spaceShip.current.vel, canvasCtx });
         }, 25);
 
-        window.addEventListener('keyup', (upKeyEvent) => {
+        window.addEventListener("keyup", (upKeyEvent) => {
           if (upKeyEvent.key === e.key) {
             clearInterval(downInterval);
           }
         });
       }
-      if (e.key === 'd' || e.key === 'ArrowRight') {
+      if (e.key === "d" || e.key === "ArrowRight") {
         const rightInterval = setInterval(() => {
-          spaceShip.current.move({ right: 7, canvasCtx });
+          spaceShip.current.move({ right: spaceShip.current.vel, canvasCtx });
         }, 25);
 
-        window.addEventListener('keyup', (upKeyEvent) => {
+        window.addEventListener("keyup", (upKeyEvent) => {
           if (upKeyEvent.key === e.key) {
             clearInterval(rightInterval);
           }
         });
       }
-      if (e.key === 'a' || e.key === 'ArrowLeft') {
+      if (e.key === "a" || e.key === "ArrowLeft") {
         const letfInterval = setInterval(() => {
-          spaceShip.current.move({ left: 7, canvasCtx });
+          spaceShip.current.move({ left: spaceShip.current.vel, canvasCtx });
         }, 25);
 
-        window.addEventListener('keyup', (upKeyEvent) => {
+        window.addEventListener("keyup", (upKeyEvent) => {
           if (upKeyEvent.key === e.key) {
             clearInterval(letfInterval);
           }
         });
       }
     },
-    [gameState.paused, spaceShip.current],
+    [gameState.paused],
   );
 
   useEffect(() => {
-    const canvasCtx = gameScreen?.current?.getContext('2d');
+    const canvasCtx = gameScreen?.current?.getContext("2d");
 
     const interval = setInterval(() => {
       if (gameState.paused) return;
@@ -268,22 +276,22 @@ export const MainScene = () => {
   }, [asteroids, canvasCtx, drawEverything, gameState.paused, moveEverything]);
 
   useEffect(() => {
-    const canvasCtx = gameScreen?.current?.getContext('2d');
+    const canvasCtx = gameScreen?.current?.getContext("2d");
     const handleDown = (e) => handleKeyDown(e, canvasCtx);
     const handlePress = (e) => handleKeyPress(e, canvasCtx);
 
-    window.addEventListener('keydown', handleDown);
-    window.addEventListener('keypress', handlePress);
+    window.addEventListener("keydown", handleDown);
+    window.addEventListener("keypress", handlePress);
 
     return () => {
-      window.removeEventListener('keydown', handleDown);
-      window.removeEventListener('keypress', handlePress);
+      window.removeEventListener("keydown", handleDown);
+      window.removeEventListener("keypress", handlePress);
     };
   }, [gameScreen, handleKeyPress, handleKeyDown]);
 
   useEffect(() => {
     const _asteroids = [...asteroids];
-    const canvasCtx = gameScreen?.current?.getContext('2d');
+    const canvasCtx = gameScreen?.current?.getContext("2d");
 
     const interval = setInterval(() => {
       if (gameState.paused) return;
@@ -302,7 +310,14 @@ export const MainScene = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [gameScreen, gameScreenWidth, gameScreenHeight, asteroids, calcShotOnAsteroidRange, gameState.paused]);
+  }, [
+    gameScreen,
+    gameScreenWidth,
+    gameScreenHeight,
+    asteroids,
+    calcShotOnAsteroidRange,
+    gameState.paused,
+  ]);
 
   useEffect(() => {
     damaged.current = true;
@@ -315,33 +330,38 @@ export const MainScene = () => {
   }, [gameState.health]);
 
   return (
-    <div id="game-main-scene-screen" style={{ overflow: 'hidden' }}>
-      <div className={`${style['points-counter']}`}>SCORE: {points}</div>
-      <div className={`${style['life-counter']}`}>HEALTH: {gameState.health}</div>
+    <div id="game-main-scene-screen" style={{ overflow: "hidden" }}>
+      <div className={`${style["points-counter"]}`}>SCORE: {points}</div>
+      <div className={`${style["life-counter"]}`}>
+        HEALTH: {gameState.health}
+      </div>
       <div
         className="game-canvas-container"
-        style={{ minHeight: 'fit-content', minWidth: 'fit-content' }}
+        style={{ minHeight: "fit-content", minWidth: "fit-content" }}
       >
         {gameCanvas}
         <div
-          className={`${style['glass']}`}
+          className={`${style["glass"]}`}
           style={{
-            transition: 'box-shadow .5s ease',
+            transition: "box-shadow .5s ease",
             boxShadow: damaged.current
-              ? 'inset 0 0 5vw 5vh #ff8888'
-              : 'inset 0 0 5vw 5vh #000',
+              ? "inset 0 0 5vw 5vh #ff8888"
+              : "inset 0 0 5vw 5vh #000",
             fontSize: gameState.paused ? "5rem" : 0,
-            background: gameState.paused ? "#000000a6" : "none"
+            background: gameState.paused ? "#000000a6" : "none",
           }}
         >
-          {
-            gameState.paused && !gameState.initial ?
-              <div className={`${style['pause-info']}`}>
-                PAUSED
-                <button className={`${style['menu-button']}`} onClick={() => gameDispatch({ type: "RESTART" })}>Menu</button>
-              </div>
-              : undefined
-          }
+          {gameState.paused && !gameState.initial ? (
+            <div className={`${style["pause-info"]}`}>
+              PAUSED
+              <button
+                className={`${style["menu-button"]}`}
+                onClick={() => gameDispatch({ type: "RESTART" })}
+              >
+                Menu Inicial
+              </button>
+            </div>
+          ) : undefined}
         </div>
       </div>
     </div>

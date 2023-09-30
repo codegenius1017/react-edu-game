@@ -30,7 +30,7 @@ export const InitialMenuScene = () => {
             <div style={{ width: "100%", textAlign: "center", paddingBottom: 16 }}>
               <button className={`${style['start-button']}`} onClick={handleClick} >GO GO GO!</button>
             </div>
-            <footer>
+            <footer style={{ position: "absolute", bottom: 0 }}>
               <div>
                 &copy; copyrigths -- feito por Priscila T. 2023
               </div>

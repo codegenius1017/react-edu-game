@@ -1,5 +1,5 @@
-import { CONST } from './Global';
-import { ShotTypes } from './Shots';
+import { CONST } from "./Global";
+import { ShotTypes } from "./Shots";
 
 export class Sprite {
   constructor({ position, imageSrc, width, height, finalCordinates }) {
@@ -148,12 +148,10 @@ export class Shot extends Sprite {
     //     this.width / 2,
     //   y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
     // };
-
     // if (this.duration)
     //   this.timeout = setTimeout(() => {
     //     this.active = false;
     //   }, this.duration);
-
     // if (this.finalCordinates) this.moveUntilFinalCordinates();
     // if (this.finalSizes) this.expandUntilFinalSize();
   }
@@ -216,8 +214,9 @@ export class SpaceShipSprite extends Sprite {
     width,
     height,
     imageSrc,
-    shotType = 'default',
+    shotType = "default",
     maxPositions,
+    vel,
   }) {
     super({
       position,
@@ -231,11 +230,14 @@ export class SpaceShipSprite extends Sprite {
     this.shots = [];
     this.shotType = shotType;
     this.maxPositions = maxPositions;
+    this.vel = vel;
+    this.active = true;
   }
 
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
+    if (!this.active) return;
     if (
-      this.position.x + right + this.width - this.width / 3 <=
+      this.position.x + right + this.width - (this.width / 3) <=
       this.maxPositions.x
     ) {
       this.position.x += right;
