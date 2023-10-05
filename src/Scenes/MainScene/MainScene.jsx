@@ -15,6 +15,7 @@ import {
 import { createSpaceShip } from "../../gameAssets/Objects/SpaceShip";
 import { CONST, calcCollapse } from "../../gameAssets/Objects/Global";
 import style from "./MainScene.module.scss";
+import * as helper from "../../Components/lib/helper/helper";
 import { cloneDeep } from "lodash";
 
 export const MainScene = () => {
@@ -31,6 +32,18 @@ export const MainScene = () => {
     () => gameScreen?.current?.getContext("2d"),
     [gameScreen],
   );
+
+  useEffect(() => {
+    if (gameState.initial === true) {
+      setPoints(0);
+
+      helper.inactiveAll(shots.current);
+      helper.inactiveAll(asteroids);
+
+      setAsteroids([]);
+      shots.current = [];
+    }
+  }, [gameState.initial]);
 
   const spaceShip = useRef(
     createSpaceShip({
@@ -53,10 +66,6 @@ export const MainScene = () => {
       id: gameState.spaceShipId,
     });
   }, [gameScreenHeight, gameScreenWidth, gameState.spaceShipId]);
-
-  useEffect(() => {
-    setPoints(0);
-  }, [gameState.initial]);
 
   const gameCanvas = useMemo(
     () => (

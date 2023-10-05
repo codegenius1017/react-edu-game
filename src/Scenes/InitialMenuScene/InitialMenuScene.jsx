@@ -2,7 +2,7 @@ import style from './InitialMenuScene.module.scss';
 import { SpaceShipSelector } from "../../Components/SpaceShipSelector/SpaceShipSelector";
 import { MainScene } from '../MainScene/MainScene';
 import { GameContext } from '../../contexts/GameContext';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 export const InitialMenuScene = () => {
   const { gameState, gameDispatch } = useContext(GameContext);

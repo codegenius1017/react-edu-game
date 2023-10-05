@@ -1,13 +1,19 @@
 import './App.css';
-import { GameProvider } from './contexts/index';
 import { InitialMenuScene } from './Scenes/InitialMenuScene/InitialMenuScene';
+import { useContext } from "react";
+import { GameContext } from "./contexts/GameContext";
+import { GameOver } from "./Scenes/GameOverScene/GameOver";
 
 function App() {
+  const { gameState } = useContext(GameContext);
+
   return (
     <div className="App">
-      <GameProvider>
+      {gameState.gameOver ?
+        <GameOver />
+        :
         <InitialMenuScene />
-      </GameProvider>
+      }
     </div>
   );
 }
