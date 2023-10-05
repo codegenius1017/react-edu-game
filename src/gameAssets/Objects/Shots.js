@@ -36,7 +36,7 @@ export const ShotTypes = {
           new Shot({
             width: width,
             height: height,
-            color: "cian",
+            color: "aqua",
             damage: spaceshipData.damage,
             vel: 3,
             position: { x: posX, y: spaceShipY },
