@@ -26,6 +26,7 @@ export const MainScene = () => {
   const shots = useRef([]);
   const gameScreenHeight = window.innerHeight;
   const gameScreenWidth = window.innerWidth;
+  const [munitionReload, setMunitionReload] = useState(100);
   const canvasCtx = useMemo(
     () => gameScreen?.current?.getContext("2d"),
     [gameScreen],
@@ -39,6 +40,8 @@ export const MainScene = () => {
     }),
     [gameState.spaceShipId],
   );
+
+  const [munitionCount, setMunitionCount] = useState(spaceShip.current.initialMunition);
 
   useEffect(() => {
     spaceShip.current = createSpaceShip({
@@ -203,11 +206,14 @@ export const MainScene = () => {
       if (gameState.paused) return;
 
       if (e.Code === "Space" || e.key === " " || e.keyCode === 32) {
-        spaceShip.current.shoot(canvasCtx);
-        shots.current = spaceShip.current.shots;
+        if (munitionCount > 0) {
+          spaceShip.current.shoot(canvasCtx);
+          shots.current = spaceShip.current.shots;
+          setMunitionCount(prev => prev -= 1);
+        }
       }
     },
-    [gameDispatch, gameState.paused],
+    [gameDispatch, gameState.paused, munitionCount],
   );
 
   const handleKeyPress = useCallback(
@@ -329,11 +335,39 @@ export const MainScene = () => {
     return () => clearTimeout(removeDamageBorder);
   }, [gameState.health]);
 
+  useEffect(() => {
+    let counter = 0;
+    const interval = setInterval(() => {
+      counter += 100;
+      const percent = (counter / spaceShip.current.cooldown) * 100;
+
+      if (percent >= 100) {
+        if (munitionCount < spaceShip.current.initialMunition) setMunitionCount(prev => prev += 1);
+        setMunitionReload(100);
+        return clearInterval(interval);
+      }
+
+      setMunitionReload(percent.toFixed(0));
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [munitionCount]);
+
   return (
     <div id="game-main-scene-screen" style={{ overflow: "hidden" }}>
       <div className={`${style["points-counter"]}`}>SCORE: {points}</div>
       <div className={`${style["life-counter"]}`}>
         HEALTH: {gameState.health}
+      </div>
+      <div className={`${style["munition-info"]}`}>
+        <div className={`${style["munition-reload"]}`}>{munitionReload}%</div>
+        <div className={`${style["munitions-counter"]}`}>
+          {
+            new Array(munitionCount).fill("shot").map(() => (
+              <div className={`${style["munition"]}`}></div>
+            ))
+          }
+        </div>
       </div>
       <div
         className="game-canvas-container"

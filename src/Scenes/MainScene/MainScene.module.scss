@@ -1,5 +1,6 @@
 .points-counter,
-.life-counter {
+.life-counter,
+.munition-info {
   color         : #15f419;
   position      : absolute;
   font-family   : monospace;
@@ -8,6 +9,32 @@
   font-size     : 2rem;
   padding       : 10px;
   z-index       : 99;
+}
+
+.munition-info {
+  width : fit-content;
+  bottom: 0;
+  right : 0;
+  text-align: center;
+}
+
+.munition-reload {
+  font-size: 2.5rem;
+}
+
+.munitions-counter {
+  width          : 100%;
+  display        : flex;
+  flex-wrap      : wrap;
+  justify-content: center;
+}
+
+.munition {
+  width: 20px;
+  height: 10px;
+  margin: 8px 3px;
+  background-color: #15f419;
+  color: transparent;
 }
 
 .life-counter {

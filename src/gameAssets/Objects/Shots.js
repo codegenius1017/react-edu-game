@@ -36,7 +36,7 @@ export const ShotTypes = {
           new Shot({
             width: width,
             height: height,
-            color: "red",
+            color: "cian",
             damage: spaceshipData.damage,
             vel: 3,
             position: { x: posX, y: spaceShipY },
@@ -50,11 +50,11 @@ export const ShotTypes = {
     },
   },
   bigShot: {
-    getSprite: (spaceshipData) => {
+    getSprite: (spaceshipData, size=50) => {
       return [
         new Shot({
-          width: 30,
-          height: 30,
+          width: size,
+          height: size,
           color: "violet",
           damage: 3,
           vel: 2,

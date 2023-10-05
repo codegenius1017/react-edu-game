@@ -217,6 +217,9 @@ export class SpaceShipSprite extends Sprite {
     shotType = "default",
     maxPositions,
     vel,
+    munition,
+    initialMunition,
+    cooldown
   }) {
     super({
       position,
@@ -232,6 +235,9 @@ export class SpaceShipSprite extends Sprite {
     this.maxPositions = maxPositions;
     this.vel = vel;
     this.active = true;
+    this.munition = munition;
+    this.initialMunition = initialMunition;
+    this.cooldown = cooldown;
   }
 
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
