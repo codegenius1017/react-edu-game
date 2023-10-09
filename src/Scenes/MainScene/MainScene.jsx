@@ -122,23 +122,24 @@ export const MainScene = () => {
 
   const calcShotOnAsteroidRange = useCallback(
     (shot, asteroids) => {
-      let indexAsteroid = 0;
-      for (const asteroid of asteroids) {
+      for (let indexAsteroid = 0; indexAsteroid <= asteroids.length; indexAsteroid++) {
+        const asteroid = asteroids[indexAsteroid];
+
         if (calcCollapse(asteroid, shot) && shot.active) {
           asteroid.active = false;
-          asteroids.splice(indexAsteroid, 1);
           asteroid.health -= shot.damage;
           setPoints((prev) => prev + 1);
+
           if (asteroid.health >= 1) {
             mitoseTheAsteroid(asteroid);
           } else {
-            setAsteroids(asteroids);
+            setAsteroids(helper.filterActives(asteroids));
           }
 
           return shot;
         }
-        indexAsteroid++;
-      }
+
+      };
     },
     [mitoseTheAsteroid],
   );
@@ -151,42 +152,44 @@ export const MainScene = () => {
   );
 
   const moveEverything = useCallback(
-    (asteroids) => {
-      for (const [indexShot, shot] of shots.current.entries()) {
-        if (!shot.active) {
-          shots.current.splice(indexShot, 1);
-          continue;
-        }
-        if (shot.move)
+    () => {
+      for (let indexShot = 0; indexShot <= shots.current.length; indexShot++) {
+        const shot = shots.current[indexShot];
+
+        if (!shot.active) continue;
+
+        if (shot.move) {
           shot.move(undefined, undefined, () => {
             const returnedShot = calcShotOnAsteroidRange(shot, asteroids);
 
             if (returnedShot) {
               shots.current[indexShot].active = false;
-              shots.current.splice(indexShot, 1);
             }
           });
+        }
       }
 
-      for (const [indexAster, asteroid] of asteroids.entries()) {
-        if (!asteroid.active) {
-          asteroids.splice(indexAster, 1);
-          continue;
-        }
-        if (asteroid.move)
+      for (let indexAster = 0; indexAster <= asteroids.length; indexAster++) {
+        const asteroid = asteroids[indexAster];
+
+        if (!asteroid.active) continue;
+
+        if (asteroid.move){
           asteroid.move(undefined, undefined, undefined, () => {
-            const asteroid = asteroids[indexAster];
-            asteroids.splice(indexAster, 1);
-            setAsteroids(asteroids);
+            asteroids[indexAster].active = false;
+            setAsteroids(helper.filterActives(asteroids));
             gameDispatch({ type: "LOSE_LIFE", payload: asteroid.health });
           });
+        }
       }
+
+      shots.current = helper.filterActives(shots.current);
     },
-    [calcShotOnAsteroidRange, gameDispatch],
+    [asteroids, calcShotOnAsteroidRange, gameDispatch],
   );
 
   const drawEverything = useCallback(
-    (canvasCtx, asteroids) => {
+    (canvasCtx) => {
       if (gameState.paused) return;
       if (!canvasCtx) return;
 
@@ -202,7 +205,7 @@ export const MainScene = () => {
 
       spaceShip.current.draw(canvasCtx);
     },
-    [fillCanvas, gameState.paused],
+    [asteroids, fillCanvas, gameState.paused],
   );
 
   const handleKeyDown = useCallback(
@@ -281,8 +284,8 @@ export const MainScene = () => {
 
     const interval = setInterval(() => {
       if (gameState.paused) return;
-      moveEverything(asteroids);
-      drawEverything(canvasCtx, asteroids);
+      moveEverything();
+      drawEverything(canvasCtx);
     }, CONST.defaultInterval);
 
     return () => {
