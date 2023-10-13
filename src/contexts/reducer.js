@@ -15,7 +15,7 @@ export const gameReducer = (state, action) => {
     }
 
     case types.GAME_OVER: {
-      return { ...state, gameOver: true };
+      return { ...state, gameOver: true, points: action.payload };
     }
 
     case types.RESTART: {
@@ -36,7 +36,6 @@ export const gameReducer = (state, action) => {
       return {
         ...state,
         health: updatedHealth,
-        gameOver: updatedHealth > 0 ? false : true,
       }
     }
 

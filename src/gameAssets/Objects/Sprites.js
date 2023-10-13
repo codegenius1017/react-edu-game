@@ -77,6 +77,7 @@ export class AsteroidSprite extends Sprite {
     this.isAnimating = false;
     this.active = true;
     this.health = props.health;
+    this.type = props.type;
     this.image.onload = () => {
       this.isLoaded = true;
     };
@@ -89,6 +90,18 @@ export class AsteroidSprite extends Sprite {
       this.width,
       this.height,
     );
+  }
+
+  move(finalPositionX, finalPositionY) {
+    switch (this.type) {
+      case "ZIGZAG":
+        
+        break;
+      default:
+        super.move(finalPositionX, finalPositionY);
+        break;
+    }
+
   }
 
   draw(c) {

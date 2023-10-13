@@ -6,16 +6,17 @@ import {
   useRef,
   useState,
 } from "react";
+import * as helper from "../../Components/lib/helper/helper";
+import * as types from './types.js';
 import Canvas from "../../Components/Canvas";
-import { GameContext } from "../../contexts/GameContext";
 import {
   copyAsteroid,
   createAsteroid,
 } from "../../gameAssets/Objects/Asteroid";
+import { GameContext } from "../../contexts/GameContext";
 import { createSpaceShip } from "../../gameAssets/Objects/SpaceShip";
-import { CONST, calcCollapse } from "../../gameAssets/Objects/Global";
+import { CONST, LEVELS_DATA, calcCollapse } from "../../gameAssets/Objects/Global";
 import style from "./MainScene.module.scss";
-import * as helper from "../../Components/lib/helper/helper";
 import { cloneDeep } from "lodash";
 
 export const MainScene = () => {
@@ -32,6 +33,8 @@ export const MainScene = () => {
     () => gameScreen?.current?.getContext("2d"),
     [gameScreen],
   );
+
+  const levelData = LEVELS_DATA[gameState.level];
 
   useEffect(() => {
     if (gameState.initial === true) {
@@ -174,11 +177,16 @@ export const MainScene = () => {
 
         if (!asteroid.active) continue;
 
-        if (asteroid.move){
+        if (asteroid.move) {
           asteroid.move(undefined, undefined, undefined, () => {
             asteroids[indexAster].active = false;
             setAsteroids(helper.filterActives(asteroids));
-            gameDispatch({ type: "LOSE_LIFE", payload: asteroid.health });
+
+            if (gameState.health - asteroid.health > 0) {
+              gameDispatch({ type: types.LOSE_LIFE, payload: asteroid.health });
+            } else {
+              gameDispatch({ type: types.GAME_OVER, payload: points });
+            }
           });
         }
       }
@@ -310,6 +318,7 @@ export const MainScene = () => {
   useEffect(() => {
     const _asteroids = [...asteroids];
     const canvasCtx = gameScreen?.current?.getContext("2d");
+    const idsAsteroids = levelData.typesAsteroids;
 
     const interval = setInterval(() => {
       if (gameState.paused) return;
@@ -317,13 +326,14 @@ export const MainScene = () => {
         canvasCtx,
         gameScreenWidth,
         gameScreenHeight,
+        idsAsteroids
       });
 
       _asteroids.push(asteroid);
       if (_asteroids.length > 10) _asteroids.shift();
 
       setAsteroids(_asteroids);
-    }, 2500);
+    }, levelData.respawnAsteroid);
 
     return () => {
       clearInterval(interval);
