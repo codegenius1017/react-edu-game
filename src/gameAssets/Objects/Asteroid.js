@@ -63,18 +63,17 @@ export const createAsteroid = ({
   idsAsteroids
 }) => {
   const randomType = Math.floor(idsAsteroids.length * Math.random());
-  const idAsteroid = idsAsteroids.find(asteroid => asteroid.id === idsAsteroids[randomType]);
-  const aster = { ...asteroidsTypes[idAsteroid] } || { ...asteroidsTypes[0] };
+  const asteroidData = asteroidsTypes.find(asteroid => asteroid.id === idsAsteroids[randomType]) || asteroidsTypes[0];
 
   const Asteroid = new AsteroidSprite({
     position: {
       y: 0,
-      x: Math.floor(Math.random() * (gameScreenWidth - aster.size)),
+      x: Math.floor(Math.random() * (gameScreenWidth - asteroidData.size)),
     },
     finalCordinates: { y: gameScreenHeight },
-    width: aster.size,
-    height: aster.size,
-    ...aster,
+    width: asteroidData.size,
+    height: asteroidData.size,
+    ...asteroidData,
     gameScreenWidth,
     gameScreenHeight,
   });

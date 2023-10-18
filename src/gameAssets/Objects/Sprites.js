@@ -35,7 +35,6 @@ export class Sprite {
   ) {
     const goingDown = this.initialPosition.y < this.finalCordinates.y;
     const goingRigth = this.initialPosition.x < this.finalCordinates.x;
-
     const xDistanceMove = this.vel * CONST.velDistancingMitosedAsteroids;
 
     if (goingDown && finalPositionY <= this.position.y) {
@@ -53,12 +52,14 @@ export class Sprite {
 
     if (goingRigth && finalPositionX && finalPositionX > this.position.x) {
       this.position.x += xDistanceMove;
+      this.onEndSide = "right";
     } else if (
       !goingRigth &&
       finalPositionX &&
       finalPositionX < this.position.x
     ) {
       this.position.x -= xDistanceMove;
+      this.onEndSide = "left";
     }
 
     if (cb) cb();
@@ -68,7 +69,6 @@ export class Sprite {
 export class AsteroidSprite extends Sprite {
   constructor(props) {
     super(props);
-
     this.cbFalling = props.cbFalling;
     this.cbEndFall = props.cbEndFall;
     this.finalCordinates = props.finalCordinates;
@@ -78,6 +78,10 @@ export class AsteroidSprite extends Sprite {
     this.active = true;
     this.health = props.health;
     this.type = props.type;
+    this.gameScreen = {
+      width: props.gameScreenWidth,
+      height: props.gameScreenHeight,
+    };
     this.image.onload = () => {
       this.isLoaded = true;
     };
@@ -92,16 +96,20 @@ export class AsteroidSprite extends Sprite {
     );
   }
 
-  move(finalPositionX, finalPositionY) {
+  move(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y, cb, finalCb) {
     switch (this.type) {
       case "ZIGZAG":
-        
+        if (this.onEndSide === "right") this.finalCordinates.x = 0;
+        if (this.onEndSide === "left") this.finalCordinates.x = this.gameScreen.width;
+
+        this.onEndSide = undefined;
+
+        super.move(this.finalCordinates.x, finalPositionY, cb, finalCb);
         break;
       default:
-        super.move(finalPositionX, finalPositionY);
+        super.move(finalPositionX, finalPositionY, cb, finalCb);
         break;
     }
-
   }
 
   draw(c) {
@@ -150,23 +158,6 @@ export class Shot extends Sprite {
       2 * Math.PI,
     );
     c.fill();
-  }
-
-  ignite(c) {
-    // this.active = true;
-    // this.position = {
-    //   x:
-    //     this.spaceshipData.position.x +
-    //     this.spaceshipData.width / 2 -
-    //     this.width / 2,
-    //   y: this.spaceshipData.position.y + this.spaceshipData.height / 2,
-    // };
-    // if (this.duration)
-    //   this.timeout = setTimeout(() => {
-    //     this.active = false;
-    //   }, this.duration);
-    // if (this.finalCordinates) this.moveUntilFinalCordinates();
-    // if (this.finalSizes) this.expandUntilFinalSize();
   }
 
   moveUntilFinalCordinates(
@@ -232,7 +223,7 @@ export class SpaceShipSprite extends Sprite {
     vel,
     munition,
     initialMunition,
-    cooldown
+    cooldown,
   }) {
     super({
       position,
@@ -256,7 +247,7 @@ export class SpaceShipSprite extends Sprite {
   move({ top = 0, bottom = 0, right = 0, left = 0, canvasCtx }) {
     if (!this.active) return;
     if (
-      this.position.x + right + this.width - (this.width / 3) <=
+      this.position.x + right + this.width - this.width / 3 <=
       this.maxPositions.x
     ) {
       this.position.x += right;
@@ -276,7 +267,6 @@ export class SpaceShipSprite extends Sprite {
     const shots = ShotTypes[type || this.shotType].getSprite(this);
 
     shots.forEach((shot) => {
-      // shot.ignite(c);
       shot.move();
 
       this.shots.push(shot);
