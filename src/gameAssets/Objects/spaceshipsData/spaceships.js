@@ -9,8 +9,8 @@ export const spaceships = [
     width: 90,
     shotType: "default",
     imageSrc: `${process.env.PUBLIC_URL}/images/spaceshipsSkins/nave2.gif`,
-    cooldown: 1150,
-    initialMunition: 5,
+    cooldown: 1000,
+    initialMunition: 8,
   },
   {
     id: 1,
@@ -22,7 +22,7 @@ export const spaceships = [
     width: 100,
     shotType: "doubleShot",
     imageSrc: `${process.env.PUBLIC_URL}/images/spaceshipsSkins/nave1.gif`,
-    cooldown: 700,
+    cooldown: 650,
     initialMunition: 6,
   },
   {
@@ -35,7 +35,7 @@ export const spaceships = [
     width: 250,
     shotType: "bigShot",
     imageSrc: `${process.env.PUBLIC_URL}/images/spaceshipsSkins/nave3.png`,
-    cooldown: 1500,
-    initialMunition: 3,
+    cooldown: 1400,
+    initialMunition: 4,
   }
 ]

@@ -33,9 +33,9 @@ export class Sprite {
     cb,
     finalCb,
   ) {
-    const goingDown = this.initialPosition.y < this.finalCordinates.y;
-    const goingRigth = this.initialPosition.x < this.finalCordinates.x;
-    const xDistanceMove = this.vel * CONST.velDistancingMitosedAsteroids;
+    const goingDown = this.initialPosition.y < finalPositionY;
+    const goingRigth = this.initialPosition.x < finalPositionX;
+    const xDistanceMove = this.vel;
 
     if (goingDown && finalPositionY <= this.position.y) {
       this.active = false;
@@ -50,16 +50,16 @@ export class Sprite {
     } else if (!goingDown && finalPositionY < this.position.y)
       this.position.y -= this.vel;
 
-    if (goingRigth && finalPositionX && finalPositionX > this.position.x) {
+    if (goingRigth && finalPositionX !== undefined && finalPositionX > this.position.x) {
       this.position.x += xDistanceMove;
-      this.onEndSide = "right";
+      if (this.position.x + xDistanceMove === finalPositionX) this.onEndSide = "right";
     } else if (
       !goingRigth &&
-      finalPositionX &&
+      finalPositionX !== undefined &&
       finalPositionX < this.position.x
     ) {
       this.position.x -= xDistanceMove;
-      this.onEndSide = "left";
+      if (this.position.x - xDistanceMove === finalPositionX) this.onEndSide = "left";
     }
 
     if (cb) cb();
@@ -99,8 +99,8 @@ export class AsteroidSprite extends Sprite {
   move(finalPositionX = this.finalCordinates.x, finalPositionY = this.finalCordinates.y, cb, finalCb) {
     switch (this.type) {
       case "ZIGZAG":
-        if (this.onEndSide === "right") this.finalCordinates.x = 0;
-        if (this.onEndSide === "left") this.finalCordinates.x = this.gameScreen.width;
+        if (this.onEndSide === "right" || this.finalCordinates.x === undefined) this.finalCordinates.x = 0;
+        if (this.onEndSide === "left" || this.finalCordinates.x === undefined) this.finalCordinates.x = this.gameScreen.width;
 
         this.onEndSide = undefined;
 

@@ -12,13 +12,12 @@ import Canvas from "../../Components/Canvas";
 import {
   copyAsteroid,
   createAsteroid,
-} from "../../gameAssets/Objects/Asteroid";
+} from "../../gameAssets/Objects/ManipuleAsteroid";
 import { GameContext } from "../../contexts/GameContext";
 import { createSpaceShip } from "../../gameAssets/Objects/SpaceShip";
 import {
   CONST,
   LEVELS_DATA,
-  calcCollapse,
 } from "../../gameAssets/Objects/Global";
 import style from "./MainScene.module.scss";
 import { cloneDeep } from "lodash";
@@ -103,7 +102,7 @@ export const MainScene = () => {
     for (let indexAsteroid = 0; indexAsteroid <= asteroids.length; indexAsteroid++) {
       const asteroid = asteroids[indexAsteroid];
 
-      if (calcCollapse(asteroid, shot) && shot.active) {
+      if (helper.calcCollapse(asteroid, shot) && shot.active) {
         asteroid.active = false;
         asteroid.health -= shot.damage;
         setPoints((prev) => prev + 1);
@@ -147,7 +146,7 @@ export const MainScene = () => {
         asteroid.move(undefined, undefined, undefined, () => {
           asteroid.active = false;
 
-          if (gameState.health - asteroid.health > 0) {
+          if ((gameState.health - asteroid.health) > 0) {
             gameDispatch({ type: types.LOSE_LIFE, payload: asteroid.health });
           } else {
             gameDispatch({ type: types.GAME_OVER, payload: points });
@@ -316,7 +315,7 @@ export const MainScene = () => {
   useEffect(() => {
     const _asteroids = helper.filterActives(asteroids.current);
     const canvasCtx = gameScreen?.current?.getContext("2d");
-    const idsAsteroids = levelData.typesAsteroids;
+    const idsAsteroids = levelData?.typesAsteroids || [1];
 
     const interval = setInterval(() => {
       if (gameState.paused) return;
@@ -335,13 +334,13 @@ export const MainScene = () => {
     return () => {
       clearInterval(interval);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     gameScreen,
     gameScreenWidth,
     gameScreenHeight,
     calcShotOnAsteroidRange,
     gameState.paused,
-    levelData.typesAsteroids,
     levelData.respawnAsteroid,
   ]);
 
@@ -374,6 +373,35 @@ export const MainScene = () => {
     return () => clearInterval(interval);
   }, [munitionCount]);
 
+  useEffect(() => {
+    let level = 0;
+
+    if (points > 50) {
+      level++;
+    }
+
+    if(points > 120){
+      level++;
+    }
+
+    if(points > 190){
+      level++;
+    }
+
+    if(points > 280){
+      level++;
+    }
+
+    if(points > 400){
+      level++;
+    }
+
+    if(level !== gameState.level){
+      gameDispatch({ type: types.LEVEL_UP });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points]);
+
   return (
     <div id="game-main-scene-screen" style={{ overflow: "hidden" }}>
       <div className={`${style["points-counter"]}`}>SCORE: {points}</div>
@@ -383,8 +411,8 @@ export const MainScene = () => {
       <div className={`${style["munition-info"]}`}>
         <div className={`${style["munition-reload"]}`}>{munitionReload}%</div>
         <div className={`${style["munitions-counter"]}`}>
-          {new Array(munitionCount).fill("shot").map(() => (
-            <div className={`${style["munition"]}`}></div>
+          {new Array(munitionCount).fill("shot").map((munition, i) => (
+            <div key={i} className={`${style["munition"]}`}></div>
           ))}
         </div>
       </div>

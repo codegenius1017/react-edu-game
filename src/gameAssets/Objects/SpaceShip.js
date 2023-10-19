@@ -1,4 +1,4 @@
-import { spaceships } from "../spaceshipsData/spaceships";
+import { spaceships } from "./spaceshipsData/spaceships";
 import { SpaceShipSprite } from "./Sprites";
 
 export const createSpaceShip = ({

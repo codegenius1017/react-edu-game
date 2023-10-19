@@ -1,6 +1,5 @@
-import { spaceships } from "../../gameAssets/spaceshipsData/spaceships";
 import style from "./SpaceShipVisualizer.module.scss";
-
+import { spaceships } from "../../gameAssets/Objects/spaceshipsData/spaceships";
 
 export const SpaceShipVisualizer = ({ spaceShipId }) => {
   const spaceShipDetails = spaceships[spaceShipId];

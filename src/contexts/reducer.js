@@ -1,5 +1,5 @@
 /* eslint-disable default-case */
-import { spaceships } from '../gameAssets/spaceshipsData/spaceships.js';
+import { spaceships } from '../gameAssets/Objects/spaceshipsData/spaceships.js';
 import * as types from './types.js';
 
 export const gameReducer = (state, action) => {
@@ -31,7 +31,7 @@ export const gameReducer = (state, action) => {
     }
 
     case types.LOSE_LIFE: {
-      const updatedHealth = state.health -= (action.payload.damage || 1);
+      const updatedHealth = state.health - (action.payload || 1);
 
       return {
         ...state,
@@ -40,7 +40,7 @@ export const gameReducer = (state, action) => {
     }
 
     case types.LEVEL_UP: {
-      let level = state;
+      let { level } = state;
       level++;
 
       return { ...state, level };
